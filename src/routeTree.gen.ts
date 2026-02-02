@@ -9,38 +9,157 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as DashboardSitesIndexRouteImport } from './routes/dashboard/sites/index'
+import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/settings/index'
+import { Route as DashboardSchedulesIndexRouteImport } from './routes/dashboard/schedules/index'
+import { Route as DashboardJobsIndexRouteImport } from './routes/dashboard/jobs/index'
+import { Route as DashboardFormsIndexRouteImport } from './routes/dashboard/forms/index'
+import { Route as DashboardDronesIndexRouteImport } from './routes/dashboard/drones/index'
 
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/auth/',
+  path: '/auth/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardSitesIndexRoute = DashboardSitesIndexRouteImport.update({
+  id: '/sites/',
+  path: '/sites/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardSchedulesIndexRoute = DashboardSchedulesIndexRouteImport.update({
+  id: '/schedules/',
+  path: '/schedules/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardJobsIndexRoute = DashboardJobsIndexRouteImport.update({
+  id: '/jobs/',
+  path: '/jobs/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardFormsIndexRoute = DashboardFormsIndexRouteImport.update({
+  id: '/forms/',
+  path: '/forms/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardDronesIndexRoute = DashboardDronesIndexRouteImport.update({
+  id: '/drones/',
+  path: '/drones/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/auth/': typeof AuthIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/drones/': typeof DashboardDronesIndexRoute
+  '/dashboard/forms/': typeof DashboardFormsIndexRoute
+  '/dashboard/jobs/': typeof DashboardJobsIndexRoute
+  '/dashboard/schedules/': typeof DashboardSchedulesIndexRoute
+  '/dashboard/settings/': typeof DashboardSettingsIndexRoute
+  '/dashboard/sites/': typeof DashboardSitesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/drones': typeof DashboardDronesIndexRoute
+  '/dashboard/forms': typeof DashboardFormsIndexRoute
+  '/dashboard/jobs': typeof DashboardJobsIndexRoute
+  '/dashboard/schedules': typeof DashboardSchedulesIndexRoute
+  '/dashboard/settings': typeof DashboardSettingsIndexRoute
+  '/dashboard/sites': typeof DashboardSitesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/auth/': typeof AuthIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/drones/': typeof DashboardDronesIndexRoute
+  '/dashboard/forms/': typeof DashboardFormsIndexRoute
+  '/dashboard/jobs/': typeof DashboardJobsIndexRoute
+  '/dashboard/schedules/': typeof DashboardSchedulesIndexRoute
+  '/dashboard/settings/': typeof DashboardSettingsIndexRoute
+  '/dashboard/sites/': typeof DashboardSitesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/auth/'
+    | '/dashboard/'
+    | '/dashboard/drones/'
+    | '/dashboard/forms/'
+    | '/dashboard/jobs/'
+    | '/dashboard/schedules/'
+    | '/dashboard/settings/'
+    | '/dashboard/sites/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/dashboard/drones'
+    | '/dashboard/forms'
+    | '/dashboard/jobs'
+    | '/dashboard/schedules'
+    | '/dashboard/settings'
+    | '/dashboard/sites'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/auth/'
+    | '/dashboard/'
+    | '/dashboard/drones/'
+    | '/dashboard/forms/'
+    | '/dashboard/jobs/'
+    | '/dashboard/schedules/'
+    | '/dashboard/settings/'
+    | '/dashboard/sites/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  AuthIndexRoute: typeof AuthIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +167,93 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/auth/': {
+      id: '/auth/'
+      path: '/auth'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/sites/': {
+      id: '/dashboard/sites/'
+      path: '/sites'
+      fullPath: '/dashboard/sites/'
+      preLoaderRoute: typeof DashboardSitesIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/settings/': {
+      id: '/dashboard/settings/'
+      path: '/settings'
+      fullPath: '/dashboard/settings/'
+      preLoaderRoute: typeof DashboardSettingsIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/schedules/': {
+      id: '/dashboard/schedules/'
+      path: '/schedules'
+      fullPath: '/dashboard/schedules/'
+      preLoaderRoute: typeof DashboardSchedulesIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/jobs/': {
+      id: '/dashboard/jobs/'
+      path: '/jobs'
+      fullPath: '/dashboard/jobs/'
+      preLoaderRoute: typeof DashboardJobsIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/forms/': {
+      id: '/dashboard/forms/'
+      path: '/forms'
+      fullPath: '/dashboard/forms/'
+      preLoaderRoute: typeof DashboardFormsIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/drones/': {
+      id: '/dashboard/drones/'
+      path: '/drones'
+      fullPath: '/dashboard/drones/'
+      preLoaderRoute: typeof DashboardDronesIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
   }
 }
 
+interface DashboardRouteRouteChildren {
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardDronesIndexRoute: typeof DashboardDronesIndexRoute
+  DashboardFormsIndexRoute: typeof DashboardFormsIndexRoute
+  DashboardJobsIndexRoute: typeof DashboardJobsIndexRoute
+  DashboardSchedulesIndexRoute: typeof DashboardSchedulesIndexRoute
+  DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
+  DashboardSitesIndexRoute: typeof DashboardSitesIndexRoute
+}
+
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardDronesIndexRoute: DashboardDronesIndexRoute,
+  DashboardFormsIndexRoute: DashboardFormsIndexRoute,
+  DashboardJobsIndexRoute: DashboardJobsIndexRoute,
+  DashboardSchedulesIndexRoute: DashboardSchedulesIndexRoute,
+  DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
+  DashboardSitesIndexRoute: DashboardSitesIndexRoute,
+}
+
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  AuthIndexRoute: AuthIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
