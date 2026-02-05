@@ -19,6 +19,7 @@ import { Route as DashboardSchedulesIndexRouteImport } from './routes/dashboard/
 import { Route as DashboardJobsIndexRouteImport } from './routes/dashboard/jobs/index'
 import { Route as DashboardFormsIndexRouteImport } from './routes/dashboard/forms/index'
 import { Route as DashboardDronesIndexRouteImport } from './routes/dashboard/drones/index'
+import { Route as DashboardFormsFormIdRouteImport } from './routes/dashboard/forms/$formId'
 
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
@@ -70,12 +71,18 @@ const DashboardDronesIndexRoute = DashboardDronesIndexRouteImport.update({
   path: '/drones/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardFormsFormIdRoute = DashboardFormsFormIdRouteImport.update({
+  id: '/forms/$formId',
+  path: '/forms/$formId',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/forms/$formId': typeof DashboardFormsFormIdRoute
   '/dashboard/drones/': typeof DashboardDronesIndexRoute
   '/dashboard/forms/': typeof DashboardFormsIndexRoute
   '/dashboard/jobs/': typeof DashboardJobsIndexRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/forms/$formId': typeof DashboardFormsFormIdRoute
   '/dashboard/drones': typeof DashboardDronesIndexRoute
   '/dashboard/forms': typeof DashboardFormsIndexRoute
   '/dashboard/jobs': typeof DashboardJobsIndexRoute
@@ -100,6 +108,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/forms/$formId': typeof DashboardFormsFormIdRoute
   '/dashboard/drones/': typeof DashboardDronesIndexRoute
   '/dashboard/forms/': typeof DashboardFormsIndexRoute
   '/dashboard/jobs/': typeof DashboardJobsIndexRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/auth/'
     | '/dashboard/'
+    | '/dashboard/forms/$formId'
     | '/dashboard/drones/'
     | '/dashboard/forms/'
     | '/dashboard/jobs/'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/dashboard/forms/$formId'
     | '/dashboard/drones'
     | '/dashboard/forms'
     | '/dashboard/jobs'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/auth/'
     | '/dashboard/'
+    | '/dashboard/forms/$formId'
     | '/dashboard/drones/'
     | '/dashboard/forms/'
     | '/dashboard/jobs/'
@@ -223,11 +235,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDronesIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/forms/$formId': {
+      id: '/dashboard/forms/$formId'
+      path: '/forms/$formId'
+      fullPath: '/dashboard/forms/$formId'
+      preLoaderRoute: typeof DashboardFormsFormIdRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
   }
 }
 
 interface DashboardRouteRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardFormsFormIdRoute: typeof DashboardFormsFormIdRoute
   DashboardDronesIndexRoute: typeof DashboardDronesIndexRoute
   DashboardFormsIndexRoute: typeof DashboardFormsIndexRoute
   DashboardJobsIndexRoute: typeof DashboardJobsIndexRoute
@@ -238,6 +258,7 @@ interface DashboardRouteRouteChildren {
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardFormsFormIdRoute: DashboardFormsFormIdRoute,
   DashboardDronesIndexRoute: DashboardDronesIndexRoute,
   DashboardFormsIndexRoute: DashboardFormsIndexRoute,
   DashboardJobsIndexRoute: DashboardJobsIndexRoute,
