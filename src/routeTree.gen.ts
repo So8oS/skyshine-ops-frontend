@@ -19,7 +19,9 @@ import { Route as DashboardSchedulesIndexRouteImport } from './routes/dashboard/
 import { Route as DashboardJobsIndexRouteImport } from './routes/dashboard/jobs/index'
 import { Route as DashboardFormsIndexRouteImport } from './routes/dashboard/forms/index'
 import { Route as DashboardDronesIndexRouteImport } from './routes/dashboard/drones/index'
+import { Route as DashboardSitesNewRouteImport } from './routes/dashboard/sites/new'
 import { Route as DashboardFormsFormIdRouteImport } from './routes/dashboard/forms/$formId'
+import { Route as DashboardSitesSiteIdEditRouteImport } from './routes/dashboard/sites/$siteId/edit'
 
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
@@ -71,11 +73,22 @@ const DashboardDronesIndexRoute = DashboardDronesIndexRouteImport.update({
   path: '/drones/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardSitesNewRoute = DashboardSitesNewRouteImport.update({
+  id: '/sites/new',
+  path: '/sites/new',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 const DashboardFormsFormIdRoute = DashboardFormsFormIdRouteImport.update({
   id: '/forms/$formId',
   path: '/forms/$formId',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardSitesSiteIdEditRoute =
+  DashboardSitesSiteIdEditRouteImport.update({
+    id: '/sites/$siteId/edit',
+    path: '/sites/$siteId/edit',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -83,24 +96,28 @@ export interface FileRoutesByFullPath {
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/forms/$formId': typeof DashboardFormsFormIdRoute
+  '/dashboard/sites/new': typeof DashboardSitesNewRoute
   '/dashboard/drones/': typeof DashboardDronesIndexRoute
   '/dashboard/forms/': typeof DashboardFormsIndexRoute
   '/dashboard/jobs/': typeof DashboardJobsIndexRoute
   '/dashboard/schedules/': typeof DashboardSchedulesIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/sites/': typeof DashboardSitesIndexRoute
+  '/dashboard/sites/$siteId/edit': typeof DashboardSitesSiteIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/forms/$formId': typeof DashboardFormsFormIdRoute
+  '/dashboard/sites/new': typeof DashboardSitesNewRoute
   '/dashboard/drones': typeof DashboardDronesIndexRoute
   '/dashboard/forms': typeof DashboardFormsIndexRoute
   '/dashboard/jobs': typeof DashboardJobsIndexRoute
   '/dashboard/schedules': typeof DashboardSchedulesIndexRoute
   '/dashboard/settings': typeof DashboardSettingsIndexRoute
   '/dashboard/sites': typeof DashboardSitesIndexRoute
+  '/dashboard/sites/$siteId/edit': typeof DashboardSitesSiteIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -109,12 +126,14 @@ export interface FileRoutesById {
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/forms/$formId': typeof DashboardFormsFormIdRoute
+  '/dashboard/sites/new': typeof DashboardSitesNewRoute
   '/dashboard/drones/': typeof DashboardDronesIndexRoute
   '/dashboard/forms/': typeof DashboardFormsIndexRoute
   '/dashboard/jobs/': typeof DashboardJobsIndexRoute
   '/dashboard/schedules/': typeof DashboardSchedulesIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/sites/': typeof DashboardSitesIndexRoute
+  '/dashboard/sites/$siteId/edit': typeof DashboardSitesSiteIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -124,24 +143,28 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/dashboard/'
     | '/dashboard/forms/$formId'
+    | '/dashboard/sites/new'
     | '/dashboard/drones/'
     | '/dashboard/forms/'
     | '/dashboard/jobs/'
     | '/dashboard/schedules/'
     | '/dashboard/settings/'
     | '/dashboard/sites/'
+    | '/dashboard/sites/$siteId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/dashboard'
     | '/dashboard/forms/$formId'
+    | '/dashboard/sites/new'
     | '/dashboard/drones'
     | '/dashboard/forms'
     | '/dashboard/jobs'
     | '/dashboard/schedules'
     | '/dashboard/settings'
     | '/dashboard/sites'
+    | '/dashboard/sites/$siteId/edit'
   id:
     | '__root__'
     | '/'
@@ -149,12 +172,14 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/dashboard/'
     | '/dashboard/forms/$formId'
+    | '/dashboard/sites/new'
     | '/dashboard/drones/'
     | '/dashboard/forms/'
     | '/dashboard/jobs/'
     | '/dashboard/schedules/'
     | '/dashboard/settings/'
     | '/dashboard/sites/'
+    | '/dashboard/sites/$siteId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -235,11 +260,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDronesIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/sites/new': {
+      id: '/dashboard/sites/new'
+      path: '/sites/new'
+      fullPath: '/dashboard/sites/new'
+      preLoaderRoute: typeof DashboardSitesNewRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/dashboard/forms/$formId': {
       id: '/dashboard/forms/$formId'
       path: '/forms/$formId'
       fullPath: '/dashboard/forms/$formId'
       preLoaderRoute: typeof DashboardFormsFormIdRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/sites/$siteId/edit': {
+      id: '/dashboard/sites/$siteId/edit'
+      path: '/sites/$siteId/edit'
+      fullPath: '/dashboard/sites/$siteId/edit'
+      preLoaderRoute: typeof DashboardSitesSiteIdEditRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
   }
@@ -248,23 +287,27 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardFormsFormIdRoute: typeof DashboardFormsFormIdRoute
+  DashboardSitesNewRoute: typeof DashboardSitesNewRoute
   DashboardDronesIndexRoute: typeof DashboardDronesIndexRoute
   DashboardFormsIndexRoute: typeof DashboardFormsIndexRoute
   DashboardJobsIndexRoute: typeof DashboardJobsIndexRoute
   DashboardSchedulesIndexRoute: typeof DashboardSchedulesIndexRoute
   DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
   DashboardSitesIndexRoute: typeof DashboardSitesIndexRoute
+  DashboardSitesSiteIdEditRoute: typeof DashboardSitesSiteIdEditRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardFormsFormIdRoute: DashboardFormsFormIdRoute,
+  DashboardSitesNewRoute: DashboardSitesNewRoute,
   DashboardDronesIndexRoute: DashboardDronesIndexRoute,
   DashboardFormsIndexRoute: DashboardFormsIndexRoute,
   DashboardJobsIndexRoute: DashboardJobsIndexRoute,
   DashboardSchedulesIndexRoute: DashboardSchedulesIndexRoute,
   DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
   DashboardSitesIndexRoute: DashboardSitesIndexRoute,
+  DashboardSitesSiteIdEditRoute: DashboardSitesSiteIdEditRoute,
 }
 
 const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
