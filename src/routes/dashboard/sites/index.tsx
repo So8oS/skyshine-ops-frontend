@@ -16,6 +16,7 @@ import { SiteFilters } from "@/components/site-filters";
 import { SiteCard } from "@/components/site-card";
 import { EmptyState } from "@/components/empty-state";
 import { SiteErrorFallback } from "@/components/site-error-fallback";
+import { SiteDetailsDialog } from "@/components/site-details-dialog";
 
 export const Route = createFileRoute("/dashboard/sites/")({
   component: SitesPage,
