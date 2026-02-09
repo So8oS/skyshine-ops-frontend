@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Building2, Briefcase, Calendar, Plane } from "lucide-react";
 import { useUser } from "@/actions/auth";
+import WeeklyWeatherCalendar from "@/components/weather";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardIndex,
@@ -26,7 +27,8 @@ function DashboardIndex() {
           Here's an overview of your operations.
         </p>
       </div>
-
+      <WeeklyWeatherCalendar />
+{/* 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <div
@@ -46,9 +48,9 @@ function DashboardIndex() {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
 
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-xl border bg-card p-6 shadow-sm">
           <h3 className="font-semibold mb-4">Recent Activity</h3>
           <div className="space-y-3">
@@ -87,7 +89,7 @@ function DashboardIndex() {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
