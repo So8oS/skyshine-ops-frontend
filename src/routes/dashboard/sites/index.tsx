@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Building2, Plus, Mail, Loader2 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { Building2, Plus, Loader2 } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
 import {
   useSites,
   useSiteCount,
@@ -18,8 +18,31 @@ import { EmptyState } from "@/components/empty-state";
 import { SiteErrorFallback } from "@/components/site-error-fallback";
 import { SiteDetailsDialog } from "@/components/site-details-dialog";
 
+export type SitesSearch = {
+  q?: string;
+  emirate?: string;
+  city?: string;
+  assetType?: string;
+  page?: number;
+  pageSize?: number;
+};
+
+function parseNumber(val: unknown, defaultVal: number): number {
+  if (val === undefined || val === null || val === "") return defaultVal;
+  const n = Number(val);
+  return Number.isNaN(n) ? defaultVal : Math.max(1, Math.floor(n));
+}
+
 export const Route = createFileRoute("/dashboard/sites/")({
   component: SitesPage,
+  validateSearch: (search: Record<string, unknown>): SitesSearch => ({
+    q: typeof search.q === "string" ? search.q : undefined,
+    emirate: typeof search.emirate === "string" ? search.emirate : undefined,
+    city: typeof search.city === "string" ? search.city : undefined,
+    assetType: typeof search.assetType === "string" ? search.assetType : undefined,
+    page: parseNumber(search.page, 1),
+    pageSize: parseNumber(search.pageSize, 20),
+  }),
   loader: async ({ context }) => {
     const defaultParams: SiteListParams = { page: 1, pageSize: 20 };
     context.queryClient.ensureQueryData({
@@ -31,20 +54,28 @@ export const Route = createFileRoute("/dashboard/sites/")({
 });
 
 function SitesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const navigate = useNavigate({ from: "/dashboard/sites/" });
+  const search = Route.useSearch();
   const [selectedSite, setSelectedSite] = useState<Site | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Memoize params to keep queryKey stable
+  const searchTerm = search.q ?? "";
+  const emirate = search.emirate ?? "";
+  const city = search.city ?? "";
+  const assetType = search.assetType ?? "";
+  const page = search.page ?? 1;
+  const pageSize = search.pageSize ?? 20;
+
   const params = useMemo<SiteListParams>(
     () => ({
       page,
       pageSize,
       q: searchTerm || undefined,
+      emirate: emirate || undefined,
+      city: city || undefined,
+      assetType: (assetType || undefined) as SiteListParams["assetType"],
     }),
-    [page, pageSize, searchTerm]
+    [page, pageSize, searchTerm, emirate, city, assetType]
   );
 
   const { data, isLoading, error } = useSites(params);
@@ -54,22 +85,56 @@ function SitesPage() {
   const totalSites = countData?.siteCount ?? data?.total ?? 0;
   const totalPages = data?.totalPages ?? 1;
 
+  const setSearchParams = useCallback(
+    (updates: Partial<SitesSearch>) => {
+      navigate({
+        search: (prev) => {
+          const next = { ...prev, ...updates };
+          if (next.page === 1) {
+            delete next.page;
+          }
+          if (next.pageSize === 20) {
+            delete next.pageSize;
+          }
+          if (!next.q) delete next.q;
+          if (!next.emirate) delete next.emirate;
+          if (!next.city) delete next.city;
+          if (!next.assetType) delete next.assetType;
+          return next;
+        },
+        replace: true,
+      });
+    },
+    [navigate]
+  );
 
   const handleSiteClick = (site: Site) => {
     setSelectedSite(site);
     setDialogOpen(true);
   };
 
-  // Reset to page 1 when search changes
   const handleSearchChange = (term: string) => {
-    setSearchTerm(term);
-    setPage(1);
+    setSearchParams({ q: term || undefined, page: 1 });
   };
 
-  // Reset to page 1 when page size changes
+  const handleEmirateChange = (value: string) => {
+    setSearchParams({ emirate: value || undefined, city: undefined, page: 1 });
+  };
+
+  const handleCityChange = (value: string) => {
+    setSearchParams({ city: value || undefined, page: 1 });
+  };
+
+  const handleAssetTypeChange = (value: string) => {
+    setSearchParams({ assetType: value || undefined, page: 1 });
+  };
+
   const handlePageSizeChange = (size: number) => {
-    setPageSize(size);
-    setPage(1);
+    setSearchParams({ pageSize: size, page: 1 });
+  };
+
+  const setPage = (p: number) => {
+    setSearchParams({ page: p });
   };
 
   if (error) {
@@ -115,6 +180,12 @@ function SitesPage() {
       <SiteFilters
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
+        emirate={emirate}
+        onEmirateChange={handleEmirateChange}
+        city={city}
+        onCityChange={handleCityChange}
+        assetType={assetType}
+        onAssetTypeChange={handleAssetTypeChange}
         pageSize={pageSize}
         onPageSizeChange={handlePageSizeChange}
       />
@@ -172,7 +243,7 @@ function SitesPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page <= 1}
             >
               Previous
@@ -180,7 +251,7 @@ function SitesPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page >= totalPages}
             >
               Next
