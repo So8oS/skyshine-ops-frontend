@@ -3,7 +3,6 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -104,12 +103,15 @@ export function UAVRemotePilotCard() {
           </div>
           <div className="space-y-2">
             <Label>Current Position</Label>
-            <Select {...register("currentPosition")}>
+            <select
+              {...register("currentPosition")}
+              className="border-input bg-transparent focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full cursor-pointer rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+            >
               <option value="">Select position...</option>
               {positionOptions.map((pos) => (
                 <option key={pos} value={pos}>{pos}</option>
               ))}
-            </Select>
+            </select>
           </div>
           <div className="space-y-2">
             <Label>Years of Experience (at Hire)</Label>
@@ -170,12 +172,15 @@ export function UAVRemotePilotCard() {
                 <h4 className="font-medium">{category.name}</h4>
                 <div className="flex items-center gap-2">
                   <Label className="text-sm text-muted-foreground">Proficiency Level:</Label>
-                  <Select {...register(`expertise.${category.id}.level`)} className="w-20 h-8">
+                  <select
+                    {...register(`expertise.${category.id}.level`)}
+                    className="border-input bg-transparent focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-20 cursor-pointer rounded-md border px-2 py-1 text-sm shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
                     <option value="">-</option>
                     {[1, 2, 3, 4, 5].map((level) => (
                       <option key={level} value={level}>{level}</option>
                     ))}
-                  </Select>
+                  </select>
                 </div>
               </div>
               <div className="flex flex-wrap gap-4">

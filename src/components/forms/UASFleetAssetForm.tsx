@@ -3,7 +3,6 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -88,12 +87,15 @@ export function UASFleetAssetForm() {
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Internal UAS/UAV Number</Label>
-            <Select {...register("internalUasNumber")}>
+            <select
+              {...register("internalUasNumber")}
+              className="border-input bg-transparent focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full cursor-pointer rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+            >
               <option value="">Select...</option>
               {internalUasNumbers.map((num) => (
                 <option key={num} value={num}>{num}</option>
               ))}
-            </Select>
+            </select>
           </div>
           <div className="space-y-2">
             <Label>UAS/UAV Type</Label>
@@ -349,12 +351,15 @@ export function UASFleetAssetForm() {
                       <Input {...register(`batteryHealthLogs.${index}.internalResistance`)} placeholder="1.2 mΩ" className="h-8 w-20" />
                     </td>
                     <td className="p-2">
-                      <Select {...register(`batteryHealthLogs.${index}.chargingStatus`)} className="h-8">
+                      <select
+                        {...register(`batteryHealthLogs.${index}.chargingStatus`)}
+                        className="border-input bg-transparent focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full cursor-pointer rounded-md border px-2 py-1 text-sm shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
                         <option value="">Select...</option>
                         {chargingStatusOptions.map((opt) => (
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
-                      </Select>
+                      </select>
                     </td>
                     <td className="p-2">
                       {batteryHealthFields.length > 1 && (
