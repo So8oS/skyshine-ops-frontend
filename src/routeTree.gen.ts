@@ -23,10 +23,13 @@ import { Route as DashboardSitesNewRouteImport } from './routes/dashboard/sites/
 import { Route as DashboardSchedulesNewRouteImport } from './routes/dashboard/schedules/new'
 import { Route as DashboardJobsNewRouteImport } from './routes/dashboard/jobs/new'
 import { Route as DashboardFormsFormIdRouteImport } from './routes/dashboard/forms/$formId'
+import { Route as DashboardDronesNewRouteImport } from './routes/dashboard/drones/new'
 import { Route as DashboardSchedulesScheduleIdIndexRouteImport } from './routes/dashboard/schedules/$scheduleId/index'
+import { Route as DashboardDronesDroneIdIndexRouteImport } from './routes/dashboard/drones/$droneId/index'
 import { Route as DashboardSitesSiteIdEditRouteImport } from './routes/dashboard/sites/$siteId/edit'
 import { Route as DashboardSchedulesScheduleIdEditRouteImport } from './routes/dashboard/schedules/$scheduleId/edit'
 import { Route as DashboardJobsJobIdEditRouteImport } from './routes/dashboard/jobs/$jobId/edit'
+import { Route as DashboardDronesDroneIdEditRouteImport } from './routes/dashboard/drones/$droneId/edit'
 
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
@@ -98,10 +101,21 @@ const DashboardFormsFormIdRoute = DashboardFormsFormIdRouteImport.update({
   path: '/forms/$formId',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardDronesNewRoute = DashboardDronesNewRouteImport.update({
+  id: '/drones/new',
+  path: '/drones/new',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 const DashboardSchedulesScheduleIdIndexRoute =
   DashboardSchedulesScheduleIdIndexRouteImport.update({
     id: '/schedules/$scheduleId/',
     path: '/schedules/$scheduleId/',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
+const DashboardDronesDroneIdIndexRoute =
+  DashboardDronesDroneIdIndexRouteImport.update({
+    id: '/drones/$droneId/',
+    path: '/drones/$droneId/',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
 const DashboardSitesSiteIdEditRoute =
@@ -121,12 +135,19 @@ const DashboardJobsJobIdEditRoute = DashboardJobsJobIdEditRouteImport.update({
   path: '/jobs/$jobId/edit',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardDronesDroneIdEditRoute =
+  DashboardDronesDroneIdEditRouteImport.update({
+    id: '/drones/$droneId/edit',
+    path: '/drones/$droneId/edit',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/drones/new': typeof DashboardDronesNewRoute
   '/dashboard/forms/$formId': typeof DashboardFormsFormIdRoute
   '/dashboard/jobs/new': typeof DashboardJobsNewRoute
   '/dashboard/schedules/new': typeof DashboardSchedulesNewRoute
@@ -137,15 +158,18 @@ export interface FileRoutesByFullPath {
   '/dashboard/schedules/': typeof DashboardSchedulesIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/sites/': typeof DashboardSitesIndexRoute
+  '/dashboard/drones/$droneId/edit': typeof DashboardDronesDroneIdEditRoute
   '/dashboard/jobs/$jobId/edit': typeof DashboardJobsJobIdEditRoute
   '/dashboard/schedules/$scheduleId/edit': typeof DashboardSchedulesScheduleIdEditRoute
   '/dashboard/sites/$siteId/edit': typeof DashboardSitesSiteIdEditRoute
+  '/dashboard/drones/$droneId/': typeof DashboardDronesDroneIdIndexRoute
   '/dashboard/schedules/$scheduleId/': typeof DashboardSchedulesScheduleIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/drones/new': typeof DashboardDronesNewRoute
   '/dashboard/forms/$formId': typeof DashboardFormsFormIdRoute
   '/dashboard/jobs/new': typeof DashboardJobsNewRoute
   '/dashboard/schedules/new': typeof DashboardSchedulesNewRoute
@@ -156,9 +180,11 @@ export interface FileRoutesByTo {
   '/dashboard/schedules': typeof DashboardSchedulesIndexRoute
   '/dashboard/settings': typeof DashboardSettingsIndexRoute
   '/dashboard/sites': typeof DashboardSitesIndexRoute
+  '/dashboard/drones/$droneId/edit': typeof DashboardDronesDroneIdEditRoute
   '/dashboard/jobs/$jobId/edit': typeof DashboardJobsJobIdEditRoute
   '/dashboard/schedules/$scheduleId/edit': typeof DashboardSchedulesScheduleIdEditRoute
   '/dashboard/sites/$siteId/edit': typeof DashboardSitesSiteIdEditRoute
+  '/dashboard/drones/$droneId': typeof DashboardDronesDroneIdIndexRoute
   '/dashboard/schedules/$scheduleId': typeof DashboardSchedulesScheduleIdIndexRoute
 }
 export interface FileRoutesById {
@@ -167,6 +193,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/drones/new': typeof DashboardDronesNewRoute
   '/dashboard/forms/$formId': typeof DashboardFormsFormIdRoute
   '/dashboard/jobs/new': typeof DashboardJobsNewRoute
   '/dashboard/schedules/new': typeof DashboardSchedulesNewRoute
@@ -177,9 +204,11 @@ export interface FileRoutesById {
   '/dashboard/schedules/': typeof DashboardSchedulesIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/sites/': typeof DashboardSitesIndexRoute
+  '/dashboard/drones/$droneId/edit': typeof DashboardDronesDroneIdEditRoute
   '/dashboard/jobs/$jobId/edit': typeof DashboardJobsJobIdEditRoute
   '/dashboard/schedules/$scheduleId/edit': typeof DashboardSchedulesScheduleIdEditRoute
   '/dashboard/sites/$siteId/edit': typeof DashboardSitesSiteIdEditRoute
+  '/dashboard/drones/$droneId/': typeof DashboardDronesDroneIdIndexRoute
   '/dashboard/schedules/$scheduleId/': typeof DashboardSchedulesScheduleIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -189,6 +218,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/auth/'
     | '/dashboard/'
+    | '/dashboard/drones/new'
     | '/dashboard/forms/$formId'
     | '/dashboard/jobs/new'
     | '/dashboard/schedules/new'
@@ -199,15 +229,18 @@ export interface FileRouteTypes {
     | '/dashboard/schedules/'
     | '/dashboard/settings/'
     | '/dashboard/sites/'
+    | '/dashboard/drones/$droneId/edit'
     | '/dashboard/jobs/$jobId/edit'
     | '/dashboard/schedules/$scheduleId/edit'
     | '/dashboard/sites/$siteId/edit'
+    | '/dashboard/drones/$droneId/'
     | '/dashboard/schedules/$scheduleId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/dashboard/drones/new'
     | '/dashboard/forms/$formId'
     | '/dashboard/jobs/new'
     | '/dashboard/schedules/new'
@@ -218,9 +251,11 @@ export interface FileRouteTypes {
     | '/dashboard/schedules'
     | '/dashboard/settings'
     | '/dashboard/sites'
+    | '/dashboard/drones/$droneId/edit'
     | '/dashboard/jobs/$jobId/edit'
     | '/dashboard/schedules/$scheduleId/edit'
     | '/dashboard/sites/$siteId/edit'
+    | '/dashboard/drones/$droneId'
     | '/dashboard/schedules/$scheduleId'
   id:
     | '__root__'
@@ -228,6 +263,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/auth/'
     | '/dashboard/'
+    | '/dashboard/drones/new'
     | '/dashboard/forms/$formId'
     | '/dashboard/jobs/new'
     | '/dashboard/schedules/new'
@@ -238,9 +274,11 @@ export interface FileRouteTypes {
     | '/dashboard/schedules/'
     | '/dashboard/settings/'
     | '/dashboard/sites/'
+    | '/dashboard/drones/$droneId/edit'
     | '/dashboard/jobs/$jobId/edit'
     | '/dashboard/schedules/$scheduleId/edit'
     | '/dashboard/sites/$siteId/edit'
+    | '/dashboard/drones/$droneId/'
     | '/dashboard/schedules/$scheduleId/'
   fileRoutesById: FileRoutesById
 }
@@ -350,11 +388,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardFormsFormIdRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/drones/new': {
+      id: '/dashboard/drones/new'
+      path: '/drones/new'
+      fullPath: '/dashboard/drones/new'
+      preLoaderRoute: typeof DashboardDronesNewRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/dashboard/schedules/$scheduleId/': {
       id: '/dashboard/schedules/$scheduleId/'
       path: '/schedules/$scheduleId'
       fullPath: '/dashboard/schedules/$scheduleId/'
       preLoaderRoute: typeof DashboardSchedulesScheduleIdIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/drones/$droneId/': {
+      id: '/dashboard/drones/$droneId/'
+      path: '/drones/$droneId'
+      fullPath: '/dashboard/drones/$droneId/'
+      preLoaderRoute: typeof DashboardDronesDroneIdIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/sites/$siteId/edit': {
@@ -378,11 +430,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardJobsJobIdEditRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/drones/$droneId/edit': {
+      id: '/dashboard/drones/$droneId/edit'
+      path: '/drones/$droneId/edit'
+      fullPath: '/dashboard/drones/$droneId/edit'
+      preLoaderRoute: typeof DashboardDronesDroneIdEditRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
   }
 }
 
 interface DashboardRouteRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardDronesNewRoute: typeof DashboardDronesNewRoute
   DashboardFormsFormIdRoute: typeof DashboardFormsFormIdRoute
   DashboardJobsNewRoute: typeof DashboardJobsNewRoute
   DashboardSchedulesNewRoute: typeof DashboardSchedulesNewRoute
@@ -393,14 +453,17 @@ interface DashboardRouteRouteChildren {
   DashboardSchedulesIndexRoute: typeof DashboardSchedulesIndexRoute
   DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
   DashboardSitesIndexRoute: typeof DashboardSitesIndexRoute
+  DashboardDronesDroneIdEditRoute: typeof DashboardDronesDroneIdEditRoute
   DashboardJobsJobIdEditRoute: typeof DashboardJobsJobIdEditRoute
   DashboardSchedulesScheduleIdEditRoute: typeof DashboardSchedulesScheduleIdEditRoute
   DashboardSitesSiteIdEditRoute: typeof DashboardSitesSiteIdEditRoute
+  DashboardDronesDroneIdIndexRoute: typeof DashboardDronesDroneIdIndexRoute
   DashboardSchedulesScheduleIdIndexRoute: typeof DashboardSchedulesScheduleIdIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardDronesNewRoute: DashboardDronesNewRoute,
   DashboardFormsFormIdRoute: DashboardFormsFormIdRoute,
   DashboardJobsNewRoute: DashboardJobsNewRoute,
   DashboardSchedulesNewRoute: DashboardSchedulesNewRoute,
@@ -411,9 +474,11 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardSchedulesIndexRoute: DashboardSchedulesIndexRoute,
   DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
   DashboardSitesIndexRoute: DashboardSitesIndexRoute,
+  DashboardDronesDroneIdEditRoute: DashboardDronesDroneIdEditRoute,
   DashboardJobsJobIdEditRoute: DashboardJobsJobIdEditRoute,
   DashboardSchedulesScheduleIdEditRoute: DashboardSchedulesScheduleIdEditRoute,
   DashboardSitesSiteIdEditRoute: DashboardSitesSiteIdEditRoute,
+  DashboardDronesDroneIdIndexRoute: DashboardDronesDroneIdIndexRoute,
   DashboardSchedulesScheduleIdIndexRoute:
     DashboardSchedulesScheduleIdIndexRoute,
 }
