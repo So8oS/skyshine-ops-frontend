@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Calendar, ArrowLeft } from "lucide-react";
-import { ScheduleForm } from "@/components/schedule-form";
+import { AddScheduleForm } from "@/components/add-schedule-form";
 import {
   useCreateSchedule,
   type CreateScheduleRequest,
@@ -54,10 +54,9 @@ function NewSchedulePage() {
       </div>
 
       <div className="max-w-2xl">
-        <ScheduleForm
+        <AddScheduleForm
           onSubmit={handleSubmit}
           isSubmitting={createSchedule.isPending}
-          submitLabel="Create Schedule"
         />
       </div>
     </div>

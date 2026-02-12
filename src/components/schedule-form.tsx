@@ -114,6 +114,11 @@ export function ScheduleForm({
     }
     return list;
   })();
+  const hasAvailabilityRange = !!availabilityStart && !!availabilityEnd;
+  const noPilotsAvailable =
+    hasAvailabilityRange && !availabilityLoading && pilotOptions.length === 0;
+  const noDronesAvailable =
+    hasAvailabilityRange && !availabilityLoading && droneOptions.length === 0;
 
   const handleFormSubmit = (data: CreateScheduleRequest) => {
     const payload: CreateScheduleRequest = {
@@ -200,6 +205,22 @@ export function ScheduleForm({
               Set start and end (end after start) to see available pilots and drones.
             </p>
           )}
+          {hasAvailabilityRange && availabilityLoading && (
+            <p className="text-sm text-muted-foreground">
+              Checking pilot and drone availability for this time range...
+            </p>
+          )}
+          {hasAvailabilityRange &&
+            !availabilityLoading &&
+            (noPilotsAvailable || noDronesAvailable) && (
+              <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                {noPilotsAvailable && noDronesAvailable
+                  ? "No pilots or drones are available for this time range. Try another date/time."
+                  : noPilotsAvailable
+                    ? "No pilots are available for this time range. Try another date/time."
+                    : "No drones are available for this time range. Try another date/time."}
+              </div>
+            )}
 
           <div className="space-y-2">
             <Label>Pilot *</Label>
@@ -210,14 +231,23 @@ export function ScheduleForm({
                 <Select
                   value={field.value}
                   onValueChange={field.onChange}
-                  disabled={isSubmitting || (!isEdit && !validRange) || availabilityLoading}
+                  disabled={
+                    isSubmitting ||
+                    (!isEdit && !validRange) ||
+                    availabilityLoading ||
+                    noPilotsAvailable
+                  }
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue
                       placeholder={
                         !isEdit && !validRange
                           ? "Pick time range first"
-                          : "Select pilot"
+                          : availabilityLoading
+                            ? "Checking availability..."
+                            : noPilotsAvailable
+                              ? "No pilots available for selected time"
+                              : "Select pilot"
                       }
                     />
                   </SelectTrigger>
@@ -245,14 +275,23 @@ export function ScheduleForm({
                 <Select
                   value={field.value}
                   onValueChange={field.onChange}
-                  disabled={isSubmitting || (!isEdit && !validRange) || availabilityLoading}
+                  disabled={
+                    isSubmitting ||
+                    (!isEdit && !validRange) ||
+                    availabilityLoading ||
+                    noDronesAvailable
+                  }
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue
                       placeholder={
                         !isEdit && !validRange
                           ? "Pick time range first"
-                          : "Select drone"
+                          : availabilityLoading
+                            ? "Checking availability..."
+                            : noDronesAvailable
+                              ? "No drones available for selected time"
+                              : "Select drone"
                       }
                     />
                   </SelectTrigger>
