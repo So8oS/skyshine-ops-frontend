@@ -23,6 +23,7 @@ import { Route as DashboardSitesNewRouteImport } from './routes/dashboard/sites/
 import { Route as DashboardSchedulesNewRouteImport } from './routes/dashboard/schedules/new'
 import { Route as DashboardJobsNewRouteImport } from './routes/dashboard/jobs/new'
 import { Route as DashboardFormsFormIdRouteImport } from './routes/dashboard/forms/$formId'
+import { Route as DashboardSchedulesScheduleIdIndexRouteImport } from './routes/dashboard/schedules/$scheduleId/index'
 import { Route as DashboardSitesSiteIdEditRouteImport } from './routes/dashboard/sites/$siteId/edit'
 import { Route as DashboardSchedulesScheduleIdEditRouteImport } from './routes/dashboard/schedules/$scheduleId/edit'
 import { Route as DashboardJobsJobIdEditRouteImport } from './routes/dashboard/jobs/$jobId/edit'
@@ -97,6 +98,12 @@ const DashboardFormsFormIdRoute = DashboardFormsFormIdRouteImport.update({
   path: '/forms/$formId',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardSchedulesScheduleIdIndexRoute =
+  DashboardSchedulesScheduleIdIndexRouteImport.update({
+    id: '/schedules/$scheduleId/',
+    path: '/schedules/$scheduleId/',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 const DashboardSitesSiteIdEditRoute =
   DashboardSitesSiteIdEditRouteImport.update({
     id: '/sites/$siteId/edit',
@@ -133,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/jobs/$jobId/edit': typeof DashboardJobsJobIdEditRoute
   '/dashboard/schedules/$scheduleId/edit': typeof DashboardSchedulesScheduleIdEditRoute
   '/dashboard/sites/$siteId/edit': typeof DashboardSitesSiteIdEditRoute
+  '/dashboard/schedules/$scheduleId/': typeof DashboardSchedulesScheduleIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -151,6 +159,7 @@ export interface FileRoutesByTo {
   '/dashboard/jobs/$jobId/edit': typeof DashboardJobsJobIdEditRoute
   '/dashboard/schedules/$scheduleId/edit': typeof DashboardSchedulesScheduleIdEditRoute
   '/dashboard/sites/$siteId/edit': typeof DashboardSitesSiteIdEditRoute
+  '/dashboard/schedules/$scheduleId': typeof DashboardSchedulesScheduleIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -171,6 +180,7 @@ export interface FileRoutesById {
   '/dashboard/jobs/$jobId/edit': typeof DashboardJobsJobIdEditRoute
   '/dashboard/schedules/$scheduleId/edit': typeof DashboardSchedulesScheduleIdEditRoute
   '/dashboard/sites/$siteId/edit': typeof DashboardSitesSiteIdEditRoute
+  '/dashboard/schedules/$scheduleId/': typeof DashboardSchedulesScheduleIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/dashboard/jobs/$jobId/edit'
     | '/dashboard/schedules/$scheduleId/edit'
     | '/dashboard/sites/$siteId/edit'
+    | '/dashboard/schedules/$scheduleId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/dashboard/jobs/$jobId/edit'
     | '/dashboard/schedules/$scheduleId/edit'
     | '/dashboard/sites/$siteId/edit'
+    | '/dashboard/schedules/$scheduleId'
   id:
     | '__root__'
     | '/'
@@ -229,6 +241,7 @@ export interface FileRouteTypes {
     | '/dashboard/jobs/$jobId/edit'
     | '/dashboard/schedules/$scheduleId/edit'
     | '/dashboard/sites/$siteId/edit'
+    | '/dashboard/schedules/$scheduleId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -337,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardFormsFormIdRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/schedules/$scheduleId/': {
+      id: '/dashboard/schedules/$scheduleId/'
+      path: '/schedules/$scheduleId'
+      fullPath: '/dashboard/schedules/$scheduleId/'
+      preLoaderRoute: typeof DashboardSchedulesScheduleIdIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/dashboard/sites/$siteId/edit': {
       id: '/dashboard/sites/$siteId/edit'
       path: '/sites/$siteId/edit'
@@ -376,6 +396,7 @@ interface DashboardRouteRouteChildren {
   DashboardJobsJobIdEditRoute: typeof DashboardJobsJobIdEditRoute
   DashboardSchedulesScheduleIdEditRoute: typeof DashboardSchedulesScheduleIdEditRoute
   DashboardSitesSiteIdEditRoute: typeof DashboardSitesSiteIdEditRoute
+  DashboardSchedulesScheduleIdIndexRoute: typeof DashboardSchedulesScheduleIdIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
@@ -393,6 +414,8 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardJobsJobIdEditRoute: DashboardJobsJobIdEditRoute,
   DashboardSchedulesScheduleIdEditRoute: DashboardSchedulesScheduleIdEditRoute,
   DashboardSitesSiteIdEditRoute: DashboardSitesSiteIdEditRoute,
+  DashboardSchedulesScheduleIdIndexRoute:
+    DashboardSchedulesScheduleIdIndexRoute,
 }
 
 const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
