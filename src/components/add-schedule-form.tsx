@@ -34,9 +34,7 @@ const AddScheduleFormInput = z
     startTime: z.string().regex(timeRegex, "Start time is required"),
     endDate: z.string().min(1, "End date is required"),
     endTime: z.string().regex(timeRegex, "End time is required"),
-    status: z
-      .enum(["ASSIGNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"])
-      .default("ASSIGNED"),
+    status: z.enum(["ASSIGNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]),
   })
   .superRefine((data, ctx) => {
     const startAt = combineDateAndTime(data.startDate, data.startTime);

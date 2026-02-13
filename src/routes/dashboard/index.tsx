@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Building2, Briefcase, Calendar, Plane } from "lucide-react";
 import { useUser } from "@/actions/auth";
 import WeeklyWeatherCalendar from "@/components/weather";
 
@@ -9,13 +8,6 @@ export const Route = createFileRoute("/dashboard/")({
 
 function DashboardIndex() {
   const { data: user } = useUser();
-
-  const stats = [
-    { title: "Total Sites", value: "12", icon: Building2, color: "bg-blue-500" },
-    { title: "Active Jobs", value: "8", icon: Briefcase, color: "bg-green-500" },
-    { title: "Scheduled", value: "24", icon: Calendar, color: "bg-purple-500" },
-    { title: "Drones", value: "6", icon: Plane, color: "bg-orange-500" },
-  ];
 
   return (
     <div className="space-y-6">

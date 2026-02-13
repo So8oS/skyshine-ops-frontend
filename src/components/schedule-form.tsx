@@ -1,7 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
@@ -16,7 +15,6 @@ import { Loader2 } from "lucide-react";
 import {
   CreateScheduleInput,
   type CreateScheduleRequest,
-  type UpdateScheduleRequest,
   type Schedule,
   SCHEDULE_STATUS_LABELS,
   type ScheduleStatus,
@@ -39,7 +37,7 @@ function fromDateTimeLocal(value: string): string {
 
 interface ScheduleFormProps {
   initialData?: Schedule;
-  onSubmit: (data: CreateScheduleRequest | UpdateScheduleRequest) => void;
+  onSubmit: (data: CreateScheduleRequest) => void;
   isSubmitting?: boolean;
   submitLabel?: string;
   isEdit?: boolean;
@@ -59,7 +57,6 @@ export function ScheduleForm({
   const initialEnd = initialData?.endAt ?? null;
 
   const {
-    register,
     handleSubmit,
     control,
     watch,

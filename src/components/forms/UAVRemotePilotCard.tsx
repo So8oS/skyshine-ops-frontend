@@ -34,10 +34,33 @@ const experienceCategories = [
     name: "Entry Level",
     types: ["Recreational", "Commercial General"],
   },
-];
+] as const;
+
+type ExperienceCategoryId = (typeof experienceCategories)[number]["id"];
+
+type UAVRemotePilotFormValues = {
+  internalPilotNumber: string;
+  fullName: string;
+  internalIdNumber: string;
+  employeeNumber: string;
+  currentPosition: string;
+  yearsOfExperience: string;
+  gcaaLicenseNumber: string;
+  gcaaIssueDate: string;
+  gcaaExpiryDate: string;
+  gcaaRenewalDate: string;
+  expertise: Record<ExperienceCategoryId, { level: string; types: string[] }>;
+  certifications: Array<{
+    name: string;
+    issuingBody: string;
+    dateObtained: string;
+    expiry: string;
+  }>;
+  remarks: Array<{ date: string; note: string; supervisorInitials: string }>;
+};
 
 export function UAVRemotePilotCard() {
-  const { register, control, handleSubmit } = useForm({
+  const { register, control, handleSubmit } = useForm<UAVRemotePilotFormValues>({
     defaultValues: {
       // Section 1: Personnel & Company Identity
       internalPilotNumber: "",

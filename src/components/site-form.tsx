@@ -1,5 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -40,12 +41,14 @@ export function SiteForm({
   isSubmitting = false,
   submitLabel = "Save Site",
 }: SiteFormProps) {
+  type SiteFormValues = z.input<typeof CreateSiteInput>;
+
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<CreateSiteRequest>({
+  } = useForm<SiteFormValues, unknown, CreateSiteRequest>({
     resolver: zodResolver(CreateSiteInput),
     defaultValues: {
       name: initialData?.name ?? "",
@@ -330,7 +333,7 @@ export function SiteForm({
                 <Checkbox
                   id="tetherRequired"
                   checked={field.value ?? false}
-                  onCheckedChange={field.onChange}
+                  onChange={(event) => field.onChange(event.target.checked)}
                   disabled={isSubmitting}
                 />
               )}
@@ -377,39 +380,41 @@ export function SiteForm({
               <Controller
                 name="accessConstraints"
                 control={control}
-                render={({ field }) =>
-                  (Object.keys(ACCESS_CONSTRAINT_LABELS) as AccessConstraint[]).map(
-                    (key) => {
-                      const selected = field.value ?? [];
-                      const checked = selected.includes(key);
-                      return (
-                        <div
-                          key={key}
-                          className="flex items-center space-x-2"
-                        >
-                          <Checkbox
-                            id={`access-${key}`}
-                            checked={checked}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                field.onChange([...selected, key]);
-                              } else {
-                                field.onChange(selected.filter((c) => c !== key));
-                              }
-                            }}
-                            disabled={isSubmitting}
-                          />
-                          <Label
-                            htmlFor={`access-${key}`}
-                            className="font-normal cursor-pointer text-sm"
+                render={({ field }) => (
+                  <>
+                    {(Object.keys(ACCESS_CONSTRAINT_LABELS) as AccessConstraint[]).map(
+                      (key) => {
+                        const selected = field.value ?? [];
+                        const isChecked = selected.includes(key);
+                        return (
+                          <div
+                            key={key}
+                            className="flex items-center space-x-2"
                           >
-                            {ACCESS_CONSTRAINT_LABELS[key]}
-                          </Label>
-                        </div>
-                      );
-                    }
-                  )
-                }
+                            <Checkbox
+                              id={`access-${key}`}
+                              checked={isChecked}
+                              onChange={(event) => {
+                                if (event.target.checked) {
+                                  field.onChange([...selected, key]);
+                                } else {
+                                  field.onChange(selected.filter((c) => c !== key));
+                                }
+                              }}
+                              disabled={isSubmitting}
+                            />
+                            <Label
+                              htmlFor={`access-${key}`}
+                              className="font-normal cursor-pointer text-sm"
+                            >
+                              {ACCESS_CONSTRAINT_LABELS[key]}
+                            </Label>
+                          </div>
+                        );
+                      }
+                    )}
+                  </>
+                )}
               />
             </div>
           </div>
