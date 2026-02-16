@@ -1,4 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "./ui/button";
@@ -49,7 +50,11 @@ export function SiteForm({
     control,
     formState: { errors },
   } = useForm<SiteFormValues, unknown, CreateSiteRequest>({
-    resolver: zodResolver(CreateSiteInput),
+    resolver: zodResolver(CreateSiteInput) as Resolver<
+      SiteFormValues,
+      unknown,
+      CreateSiteRequest
+    >,
     defaultValues: {
       name: initialData?.name ?? "",
       email: initialData?.email ?? "",
