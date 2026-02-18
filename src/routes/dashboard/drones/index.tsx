@@ -1,5 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Plane, Plus, Loader2, Pencil, Search } from "lucide-react";
 import { useMemo, useCallback } from "react";
 import {
@@ -188,31 +196,28 @@ function DronesPage() {
         </CardContent>
       </Card>
 
-      <div className="rounded-md border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-muted/50">
-              <th className="h-10 px-4 text-left font-medium">Name</th>
-              <th className="h-10 px-4 text-left font-medium">Serial Number</th>
-              <th className="h-10 px-4 text-left font-medium">Status</th>
-              <th className="h-10 px-4 text-right font-medium w-[80px]">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Serial Number</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right w-[80px]">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {isLoading
               ? Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="border-b">
-                    <td colSpan={4} className="px-4 py-6">
+                  <TableRow key={i}>
+                    <TableCell colSpan={4} className="py-6">
                       <div className="h-6 animate-pulse rounded bg-muted" />
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               : drones.map((d) => (
-                  <tr
-                    key={d.id}
-                    className="border-b last:border-0 hover:bg-muted/30 transition-colors"
-                  >
-                    <td className="px-4 py-3">
+                  <TableRow key={d.id}>
+                    <TableCell>
                       <Link
                         to="/dashboard/drones/$droneId"
                         params={{ droneId: d.id }}
@@ -220,16 +225,16 @@ function DronesPage() {
                       >
                         {d.name}
                       </Link>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
                       {d.serialNumber}
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       <span className="inline-flex rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
                         {DRONE_STATUS_LABELS[d.status]}
                       </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
+                    </TableCell>
+                    <TableCell className="text-right">
                       <Link
                         to="/dashboard/drones/$droneId/edit"
                         params={{ droneId: d.id }}
@@ -239,11 +244,11 @@ function DronesPage() {
                           <span className="sr-only">Edit</span>
                         </Button>
                       </Link>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {!isLoading && drones.length === 0 && (

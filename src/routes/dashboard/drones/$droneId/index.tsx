@@ -1,5 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Plane, ArrowLeft, Pencil, Calendar } from "lucide-react";
 import {
   useDrone,
@@ -147,29 +155,26 @@ function DroneDetailsPage() {
                   No schedules for this drone.
                 </p>
               ) : (
-                <div className="rounded-md border overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b bg-muted/50">
-                        <th className="h-10 px-4 text-left font-medium">Site</th>
-                        <th className="h-10 px-4 text-left font-medium">Job</th>
-                        <th className="h-10 px-4 text-left font-medium">Status</th>
-                        <th className="h-10 px-4 text-left font-medium">Pilot</th>
-                        <th className="h-10 px-4 text-left font-medium">Start</th>
-                        <th className="h-10 px-4 text-left font-medium">End</th>
-                        <th className="h-10 px-4 text-right font-medium w-[80px]">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Site</TableHead>
+                        <TableHead>Job</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Pilot</TableHead>
+                        <TableHead>Start</TableHead>
+                        <TableHead>End</TableHead>
+                        <TableHead className="text-right w-[80px]">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {schedules.map((s) => (
-                        <tr
-                          key={s.id}
-                          className="border-b last:border-0 hover:bg-muted/30 transition-colors"
-                        >
-                          <td className="px-4 py-3 text-muted-foreground">
+                        <TableRow key={s.id}>
+                          <TableCell className="text-muted-foreground">
                             {s.job?.site?.name ?? "—"}
-                          </td>
-                          <td className="px-4 py-3 font-medium">
+                          </TableCell>
+                          <TableCell className="font-medium">
                             <Link
                               to="/dashboard/schedules/$scheduleId"
                               params={{ scheduleId: s.id }}
@@ -177,24 +182,20 @@ function DroneDetailsPage() {
                             >
                               {s.job?.name ?? s.job?.id ?? "—"}
                             </Link>
-                          </td>
-                          <td className="px-4 py-3">
+                          </TableCell>
+                          <TableCell>
                             <span className="inline-flex rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
                               {s.status && s.status in SCHEDULE_STATUS_LABELS
                                 ? SCHEDULE_STATUS_LABELS[s.status as ScheduleStatus]
                                 : s.status ?? "—"}
                             </span>
-                          </td>
-                          <td className="px-4 py-3">
+                          </TableCell>
+                          <TableCell>
                             {s.pilot?.name ?? "—"}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            {formatScheduleTime(s.startAt)}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            {formatScheduleTime(s.endAt)}
-                          </td>
-                          <td className="px-4 py-3 text-right">
+                          </TableCell>
+                          <TableCell>{formatScheduleTime(s.startAt)}</TableCell>
+                          <TableCell>{formatScheduleTime(s.endAt)}</TableCell>
+                          <TableCell className="text-right">
                             <Link
                               to="/dashboard/schedules/$scheduleId"
                               params={{ scheduleId: s.id }}
@@ -203,11 +204,11 @@ function DroneDetailsPage() {
                                 View
                               </Button>
                             </Link>
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               )}
             </CardContent>

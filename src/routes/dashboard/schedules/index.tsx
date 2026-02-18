@@ -1,5 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Calendar, Plus, Loader2, Pencil, List, CalendarDays } from "lucide-react";
 import { useMemo, useCallback, useState } from "react";
 import {
@@ -333,35 +341,32 @@ function SchedulesPage() {
         </CardContent>
       </Card>
 
-      <div className="rounded-md border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-muted/50">
-              <th className="h-10 px-4 text-left font-medium">Site</th>
-              <th className="h-10 px-4 text-left font-medium">Status</th>
-              <th className="h-10 px-4 text-left font-medium">Pilot</th>
-              <th className="h-10 px-4 text-left font-medium">Drone</th>
-              <th className="h-10 px-4 text-left font-medium">Job</th>
-              <th className="h-10 px-4 text-left font-medium">Start</th>
-              <th className="h-10 px-4 text-left font-medium">End</th>
-              <th className="h-10 px-4 text-right font-medium w-[80px]">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Site</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Pilot</TableHead>
+              <TableHead>Drone</TableHead>
+              <TableHead>Job</TableHead>
+              <TableHead>Start</TableHead>
+              <TableHead>End</TableHead>
+              <TableHead className="text-right w-[80px]">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {isLoading
               ? Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="border-b">
-                    <td colSpan={8} className="px-4 py-6">
+                  <TableRow key={i}>
+                    <TableCell colSpan={8} className="py-6">
                       <div className="h-6 animate-pulse rounded bg-muted" />
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               : schedules.map((s) => (
-                  <tr
-                    key={s.id}
-                    className="border-b last:border-0 hover:bg-muted/30 transition-colors"
-                  >
-                    <td className="px-4 py-3">
+                  <TableRow key={s.id}>
+                    <TableCell>
                       <Link
                         to="/dashboard/schedules/$scheduleId"
                         params={{ scheduleId: s.id }}
@@ -369,24 +374,24 @@ function SchedulesPage() {
                       >
                         {s.job?.site?.name ?? "—"}
                       </Link>
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       <span className="inline-flex rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
                         {SCHEDULE_STATUS_LABELS[s.status]}
                       </span>
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       {s.pilot?.name ?? s.pilotId}
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       {s.drone?.name ?? s.droneId}
                       {s.drone?.serialNumber ? (
                         <span className="text-muted-foreground ml-1">
                           ({s.drone.serialNumber})
                         </span>
                       ) : null}
-                    </td>
-                    <td className="px-4 py-3 font-medium">
+                    </TableCell>
+                    <TableCell className="font-medium">
                       <Link
                         to="/dashboard/schedules/$scheduleId"
                         params={{ scheduleId: s.id }}
@@ -394,14 +399,10 @@ function SchedulesPage() {
                       >
                         {s.job?.name ?? s.jobId}
                       </Link>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {formatScheduleTime(s.startAt)}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {formatScheduleTime(s.endAt)}
-                    </td>
-                    <td className="px-4 py-3 text-right">
+                    </TableCell>
+                    <TableCell>{formatScheduleTime(s.startAt)}</TableCell>
+                    <TableCell>{formatScheduleTime(s.endAt)}</TableCell>
+                    <TableCell className="text-right">
                       <Link
                         to="/dashboard/schedules/$scheduleId/edit"
                         params={{ scheduleId: s.id }}
@@ -411,11 +412,11 @@ function SchedulesPage() {
                           <span className="sr-only">Edit</span>
                         </Button>
                       </Link>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {!isLoading && schedules.length === 0 && (
