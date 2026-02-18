@@ -120,6 +120,11 @@ export const useRegister = () => {
   });
 };
 
+function clearAuthState(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.setQueryData(authKeys.user(), null);
+  queryClient.removeQueries({ queryKey: authKeys.user() });
+}
+
 // Logout mutation
 export const useLogout = () => {
   const queryClient = useQueryClient();
@@ -128,15 +133,16 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
-      queryClient.setQueryData(authKeys.user(), null);
-      queryClient.removeQueries({ queryKey: authKeys.user() });
-      // Invalidate user-scoped queries if needed
-      // queryClient.invalidateQueries();
+      clearAuthState(queryClient);
       toast.success("Logged out successfully");
       navigate({ to: "/auth" });
     },
     onError: () => {
+      // Clear client state and redirect even on error (e.g. 401, network)
+      // so the user is not stuck unable to log out
+      clearAuthState(queryClient);
       toast.error("Logout failed");
+      navigate({ to: "/auth" });
     },
   });
 };

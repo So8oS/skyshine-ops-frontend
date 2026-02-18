@@ -6,12 +6,13 @@ const NO_REFRESH_ENDPOINTS = [
   "/api/auth/login",
   "/api/auth/register",
   "/api/auth/refresh",
+  "/api/auth/logout",
 ];
 
 const isNoRefreshEndpoint = (url?: string) =>
   NO_REFRESH_ENDPOINTS.some((endpoint) => url?.includes(endpoint));
 
-const isUnauthorized = (status?: number) => status === 401 || status === 400;
+const isUnauthorized = (status?: number) => status === 401;
 
 api.interceptors.response.use(
   (response) => response,
@@ -41,7 +42,6 @@ api.interceptors.response.use(
       await refreshPromise;
       return api(originalRequest);
     } catch (refreshErr) {
-      window.location.href = "/auth";
       return Promise.reject(refreshErr);
     } finally {
       refreshPromise = null;
