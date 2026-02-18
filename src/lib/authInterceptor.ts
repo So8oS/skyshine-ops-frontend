@@ -2,16 +2,16 @@ import { api } from "./api";
 
 let refreshPromise: Promise<void> | null = null;
 
-// Auth endpoints that should NOT trigger token refresh on 401
-const AUTH_ENDPOINTS = [
+const NO_REFRESH_ENDPOINTS = [
   "/api/auth/login",
   "/api/auth/register",
   "/api/auth/refresh",
-  "/api/auth/me",
 ];
 
-const isAuthEndpoint = (url?: string) =>
-  AUTH_ENDPOINTS.some((endpoint) => url?.includes(endpoint));
+const isNoRefreshEndpoint = (url?: string) =>
+  NO_REFRESH_ENDPOINTS.some((endpoint) => url?.includes(endpoint));
+
+const isUnauthorized = (status?: number) => status === 401 || status === 400;
 
 api.interceptors.response.use(
   (response) => response,
@@ -19,16 +19,14 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status !== 401) {
+    if (!isUnauthorized(error.response?.status)) {
       return Promise.reject(error);
     }
 
-    // Don't retry auth endpoints - let them fail naturally
-    if (isAuthEndpoint(originalRequest?.url)) {
+    if (isNoRefreshEndpoint(originalRequest?.url)) {
       return Promise.reject(error);
     }
 
-    // Don't retry if already retried
     if (originalRequest?._retry) {
       return Promise.reject(error);
     }
