@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plane } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -11,7 +10,7 @@ function LandingPage() {
       <div className="text-center space-y-6">
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className="p-4 rounded-2xl bg-white/10 backdrop-blur">
-            <Plane className="h-12 w-12" />
+            <img src="/skyshinelogonobgwhite.png" alt="Skyshine" className="h-14 w-auto object-contain" />
           </div>
         </div>
         

@@ -44,6 +44,9 @@ export function AuthForm({ initialIsLogin = true }: { initialIsLogin?: boolean }
 
   return (
     <div className="max-w-[420px] mx-auto p-10 rounded-xl shadow-2xl bg-white border border-gray-100 mt-8">
+      <div className="flex justify-center mb-6">
+        <img src="/skyshinelogonobg.png" alt="Skyshine" className="h-10 w-auto object-contain" />
+      </div>
       <h2 className="text-center text-2xl font-bold mb-6 text-gray-800">
         {isLogin ? "Sign In" : "Create Account"}
       </h2>

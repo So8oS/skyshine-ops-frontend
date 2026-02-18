@@ -2,9 +2,9 @@ import {
   Building2,
   Briefcase,
   Calendar,
-  Plane,
   FileText,
   LogOut,
+  Plane,
   Settings,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
@@ -66,8 +66,8 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link to="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
-                  <Plane className="size-4" />
+                <div className="flex aspect-square size-8 items-center justify-center rounded-xl bg-sidebar-primary p-1.5 shadow-sm">
+                  <img src="/skyshinelogonobgwhite.png" alt="Skyshine" className="size-full object-contain" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">Skyshine Ops</span>
