@@ -235,13 +235,13 @@ function DashboardIndex() {
       </div>
 
       {/* ── Charts row ── */}
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         {/* Schedules by status – donut */}
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Schedules by Status</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-2 sm:px-6">
             {isLoading ? (
               <ChartSkeleton />
             ) : totalSchedulesForChart === 0 ? (
@@ -251,7 +251,7 @@ function DashboardIndex() {
             ) : (
               <ChartContainer
                 config={scheduleStatusConfig}
-                className="mx-auto h-[280px] [&_.recharts-pie-label-text]:fill-foreground"
+                className="mx-auto aspect-square max-h-[280px] w-full [&_.recharts-pie-label-text]:fill-foreground"
               >
                 <PieChart>
                   <ChartTooltip
@@ -262,14 +262,14 @@ function DashboardIndex() {
                     data={scheduleChartData}
                     dataKey="count"
                     nameKey="status"
-                    innerRadius={50}
-                    outerRadius={80}
+                    innerRadius="35%"
+                    outerRadius="55%"
                     strokeWidth={3}
                     stroke="hsl(var(--background))"
                   />
                   <ChartLegend
                     content={<ChartLegendContent nameKey="status" />}
-                    className="flex-wrap gap-x-4 gap-y-1 justify-center pt-2"
+                    className="flex-wrap gap-x-3 gap-y-1 justify-center text-xs"
                   />
                 </PieChart>
               </ChartContainer>
@@ -278,11 +278,11 @@ function DashboardIndex() {
         </Card>
 
         {/* Drone fleet status – donut */}
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Drone Fleet Status</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-2 sm:px-6">
             {isLoading ? (
               <ChartSkeleton />
             ) : totalDronesForChart === 0 ? (
@@ -292,7 +292,7 @@ function DashboardIndex() {
             ) : (
               <ChartContainer
                 config={droneStatusConfig}
-                className="mx-auto h-[280px] [&_.recharts-pie-label-text]:fill-foreground"
+                className="mx-auto aspect-square max-h-[280px] w-full [&_.recharts-pie-label-text]:fill-foreground"
               >
                 <PieChart>
                   <ChartTooltip
@@ -303,14 +303,14 @@ function DashboardIndex() {
                     data={droneChartData}
                     dataKey="count"
                     nameKey="status"
-                    innerRadius={50}
-                    outerRadius={80}
+                    innerRadius="35%"
+                    outerRadius="55%"
                     strokeWidth={3}
                     stroke="hsl(var(--background))"
                   />
                   <ChartLegend
                     content={<ChartLegendContent nameKey="status" />}
-                    className="flex-wrap gap-x-4 gap-y-1 justify-center pt-2"
+                    className="flex-wrap gap-x-3 gap-y-1 justify-center text-xs"
                   />
                 </PieChart>
               </ChartContainer>
@@ -319,11 +319,11 @@ function DashboardIndex() {
         </Card>
 
         {/* Jobs by type – bar */}
-        <Card>
+        <Card className="md:col-span-2 xl:col-span-1 overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Jobs by Type</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-2 sm:px-6">
             {jobStatsLoading ? (
               <div className="flex items-center justify-center h-[220px]">
                 <Skeleton className="h-[180px] w-full rounded" />
@@ -335,12 +335,12 @@ function DashboardIndex() {
             ) : (
               <ChartContainer
                 config={jobTypeConfig}
-                className="mx-auto h-[280px]"
+                className="mx-auto h-[250px] w-full"
               >
                 <BarChart
                   data={jobChartData}
                   layout="vertical"
-                  margin={{ left: 10 }}
+                  margin={{ left: 0, right: 16 }}
                 >
                   <CartesianGrid horizontal={false} />
                   <YAxis
