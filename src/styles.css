@@ -26,6 +26,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -42,117 +43,136 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* status colors — safe to wire in; nothing in shadcn/Radix reads
+     these names directly, unlike --accent which IS hardcoded into
+     Radix component source and must stay subtle/unmapped-for-brand-use */
+  --color-success:            var(--success);
+  --color-warning:            var(--warning);
+  --color-info:               var(--info);
+  --color-border-strong:      var(--border-strong);
+
+  /* teal brand color — distinct from Tailwind's built-in teal-50..950
+     scale (no collision) and distinct from --accent (reserved for Radix) */
+  --color-teal:               var(--teal);
+  --color-teal-foreground:    var(--teal-foreground);
 }
-
-/* ═══════════════════════════════════════════
-   Skyshine Ops · Dark Design System
-
-   Backgrounds (dark → light):
-     #07091A  page bg
-     #0D1425  card surface
-     #13203A  elevated / hover
-
-   Accent palette:
-     #22D3EE  primary   (electric cyan)
-     #818CF8  info      (indigo)
-     #34D399  success   (emerald)
-     #FBBF24  warning   (amber)
-     #F87171  danger    (rose)
-
-   Text:
-     #E2E8F4  primary
-     #64748B  muted
-═══════════════════════════════════════════ */
 
 :root {
-  color-scheme: dark;
-  --radius: 0.5rem;
+  /* surfaces — warm near-black, not cool blue-black */
+  --background:       #0B0B0D;
+  --foreground:       #ECE7DD;
+  --card:             #131316;
+  --card-foreground:  #ECE7DD;
+  --popover:          #1A1A1E;
+  --popover-foreground:#ECE7DD;
 
-  /* Backgrounds */
-  --background:           #07091A;
-  --foreground:           #E2E8F4;
+  /* primary — sodium amber */
+  --primary:            #F5A524;
+  --primary-foreground: #1A0F00;
 
-  /* Card / surfaces */
-  --card:                 #0D1425;
-  --card-foreground:      #E2E8F4;
-  --popover:              #111C35;
-  --popover-foreground:   #E2E8F4;
+  /* secondary */
+  --secondary:           #1C1C20;
+  --secondary-foreground:#ECE7DD;
 
-  /* Primary — electric cyan */
-  --primary:              #22D3EE;
-  --primary-foreground:   #03111A;
+  /* accent — RESERVED for shadcn/Radix hover states only.
+     Select, DropdownMenu, Command etc. consume bg-accent directly
+     from their source. Keep subtle — do not use for brand color. */
+  --accent:              rgba(45, 212, 191, 0.08);
+  --accent-foreground:   #ECE7DD;
 
-  /* Secondary — slightly elevated surface */
-  --secondary:            #13203A;
-  --secondary-foreground: #94A3B8;
+  /* teal — brand secondary color. Use var(--teal) / bg-teal / text-teal
+     in custom components only. Never the Tailwind `accent` utility. */
+  --teal:                #2DD4BF;
+  --teal-foreground:     #04201C;
 
-  /* Muted */
-  --muted:                #0D1425;
-  --muted-foreground:     #64748B;
+  /* muted */
+  --muted:               #16161A;
+  --muted-foreground:    #8A8580;
 
-  /* Accent */
-  --accent:               #13203A;
-  --accent-foreground:    #E2E8F4;
+  /* status */
+  --destructive:           #EF4444;
+  --destructive-foreground:#FEE2E2;
+  --success:               #34D399;
+  --warning:               #FBBF24;
+  --info:                  #60A5FA;
 
-  /* Destructive */
-  --destructive:          #F87171;
+  /* borders & inputs */
+  --border:              rgba(236, 231, 221, 0.08);
+  --border-strong:       rgba(236, 231, 221, 0.16);
+  --input:               rgba(236, 231, 221, 0.06);
+  --ring:                #F5A524;
 
-  /* Borders & inputs */
-  --border:               rgba(148, 163, 184, 0.10);
-  --input:                rgba(148, 163, 184, 0.08);
-  --ring:                 #22D3EE;
+  /* sidebar */
+  --sidebar:                      #08080A;
+  --sidebar-foreground:           #ECE7DD;
+  --sidebar-primary:              #F5A524;
+  --sidebar-primary-foreground:   #1A0F00;
+  --sidebar-accent:               rgba(245, 165, 36, 0.08);
+  --sidebar-accent-foreground:    #ECE7DD;
+  --sidebar-border:               rgba(236, 231, 221, 0.06);
+  --sidebar-ring:                 #F5A524;
 
-  /* Charts */
-  --chart-1:              #22D3EE;
-  --chart-2:              #818CF8;
-  --chart-3:              #34D399;
-  --chart-4:              #FBBF24;
-  --chart-5:              #F87171;
+  /* charts — amber-led, no neon */
+  --chart-1: #F5A524;
+  --chart-2: #2DD4BF;
+  --chart-3: #A78BFA;
+  --chart-4: #FB923C;
+  --chart-5: #34D399;
 
-  /* Sidebar */
-  --sidebar:                      #04060F;
-  --sidebar-foreground:           #64748B;
-  --sidebar-primary:              #22D3EE;
-  --sidebar-primary-foreground:   #03111A;
-  --sidebar-accent:               #0D1425;
-  --sidebar-accent-foreground:    #E2E8F4;
-  --sidebar-border:               rgba(148, 163, 184, 0.06);
-  --sidebar-ring:                 #22D3EE;
+  /* radius — tighter for engineered feel */
+  --radius: 6px;
 }
 
-/* ── Sidebar refinements ── */
+html {
+  color-scheme: dark;
+  /* merge brief's tabular/feature settings with ligature settings */
+  font-feature-settings: "ss01", "cv11", "tnum", "rlig" 1, "calt" 1;
+}
+
 [data-sidebar="header"] {
-  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  border-bottom: 1px solid rgba(236, 231, 221, 0.06);
   padding-bottom: 0.75rem;
   margin-bottom: 0.25rem;
 }
 
 [data-sidebar="menu-button"][data-active="true"] {
-  background: rgba(34, 211, 238, 0.10);
-  border-left: 2px solid #22D3EE;
+  background: rgba(245, 165, 36, 0.08);
+  border-left: 2px solid #F5A524;
   padding-left: calc(0.5rem - 2px);
-  color: #22D3EE !important;
+  color: #F5A524 !important;
   font-weight: 600;
 }
 
 [data-sidebar="menu-button"][data-active="true"] svg {
-  color: #22D3EE;
+  color: #F5A524;
 }
 
 [data-sidebar="menu-button"]:hover:not([data-active="true"]) {
-  background: rgba(148, 163, 184, 0.06);
-  color: #E2E8F4;
+  background: rgba(236, 231, 221, 0.04);
+  color: #ECE7DD;
 }
 
 [data-sidebar="group-label"] {
-  color: rgba(100, 116, 139, 0.8);
+  color: rgba(138, 133, 128, 0.8);
   letter-spacing: 0.06em;
 }
 
-/* ── Scrollbar ── */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.12) transparent;
+  scrollbar-color: rgba(236, 231, 221, 0.08) transparent;
+}
+
+.dashboard-grid-bg {
+  background-image:
+    linear-gradient(rgba(245, 165, 36, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 165, 36, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
 }
 
 @layer base {
@@ -161,9 +181,18 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: var(--font-sans);
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1, h2 {
+    font-family: var(--font-display);
     letter-spacing: -0.01em;
   }
+  h3, h4, h5, h6 {
+    letter-spacing: -0.01em;
+  }
+}
+
+.text-mono {
+  font-family: var(--font-mono);
+  letter-spacing: -0.01em;
 }
