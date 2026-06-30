@@ -161,6 +161,38 @@ function todayString(): string {
   return d.toISOString().slice(0, 10);
 }
 
+type FlyStatus = "FLYABLE" | "MARGINAL" | "NO-GO";
+
+function getFlyStatus(r: DayRow | undefined): FlyStatus | null {
+  if (!r) return null;
+  const gusts = r.windGustsMax;
+  const precip = r.precipSum;
+  if (gusts === undefined || precip === undefined) return null;
+  if (gusts > 50 || precip > 5) return "NO-GO";
+  if (gusts >= 30 || precip >= 1) return "MARGINAL";
+  return "FLYABLE";
+}
+
+function FlyablePill({ r }: { r: DayRow | undefined }) {
+  const status = getFlyStatus(r);
+  if (!status) return null;
+
+  const styles: Record<FlyStatus, { dot: string; text: string; bg: string }> = {
+    "FLYABLE":  { dot: "bg-success",     text: "text-success",     bg: "bg-success/10 border-success/20" },
+    "MARGINAL": { dot: "bg-warning",     text: "text-warning",     bg: "bg-warning/10 border-warning/20" },
+    "NO-GO":    { dot: "bg-destructive", text: "text-destructive", bg: "bg-destructive/10 border-destructive/20" },
+  };
+
+  const s = styles[status];
+
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-[3px] border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest ${s.bg} ${s.text}`}>
+      <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${s.dot}`} />
+      {status}
+    </span>
+  );
+}
+
 type DayRow = {
   date: string;
   tempMin?: number;
@@ -470,23 +502,26 @@ export default function WeeklyWeatherCalendar() {
                     <div className="text-xs text-muted-foreground">{date}</div>
                     {isToday && <span className="mt-0.5 inline-block text-xs font-medium text-primary">Today</span>}
                   </div>
-                  <WeatherIcon className="h-6 w-6 shrink-0 text-muted-foreground" aria-hidden />
+                  <div className="flex flex-col items-end gap-1">
+                    <WeatherIcon className="h-6 w-6 shrink-0 text-muted-foreground" aria-hidden />
+                    <FlyablePill r={r} />
+                  </div>
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-x-4 gap-y-2 text-sm">
                   <span className="text-muted-foreground">Temp</span>
-                  <span className="col-span-2 font-medium tabular-nums text-right">
+                  <span className={`col-span-2 font-mono tabular-nums text-right text-xs ${isToday ? "text-primary" : ""}`}>
                     {typeof r?.tempMin === "number" && typeof r?.tempMax === "number"
                       ? `${r.tempMin.toFixed(0)}–${r.tempMax.toFixed(0)}${DISPLAY_UNITS.temp}`
                       : "—"}
                   </span>
                   <span className="text-muted-foreground">Wind / Gust</span>
-                  <span className="col-span-2 font-medium tabular-nums text-right">
+                  <span className="col-span-2 font-mono tabular-nums text-right text-xs">
                     {typeof r?.windSpeedMax === "number" && typeof r?.windGustsMax === "number"
                       ? `${Math.round(r.windSpeedMax)} / ${Math.round(r.windGustsMax)} ${DISPLAY_UNITS.wind}`
                       : "—"}
                   </span>
                   <span className="text-muted-foreground">Precip</span>
-                  <span className="col-span-2 font-medium tabular-nums text-right">
+                  <span className="col-span-2 font-mono tabular-nums text-right text-xs">
                     {typeof r?.precipProbMax === "number" ? `${Math.round(r.precipProbMax)}%` : "—"}
                     {typeof r?.precipSum === "number" ? ` · ${r.precipSum.toFixed(1)} ${DISPLAY_UNITS.precip}` : ""}
                   </span>
@@ -532,12 +567,15 @@ export default function WeeklyWeatherCalendar() {
                       <div className="text-xs text-muted-foreground">{date}</div>
                       {isToday && <span className="mt-0.5 inline-block text-xs font-medium text-primary">Today</span>}
                     </div>
-                    <WeatherIcon className="h-6 w-6 shrink-0 text-muted-foreground" aria-hidden />
+                    <div className="flex flex-col items-end gap-1">
+                      <WeatherIcon className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
+                      <FlyablePill r={r} />
+                    </div>
                   </div>
                   <div className="mt-3 space-y-1.5 text-sm">
                     <div className="flex justify-between gap-2">
                       <span className="text-muted-foreground">Temp</span>
-                      <span className="font-medium tabular-nums">
+                      <span className={`font-mono text-xs tabular-nums ${isToday ? "text-primary" : ""}`}>
                         {typeof r?.tempMin === "number" && typeof r?.tempMax === "number"
                           ? `${r.tempMin.toFixed(0)}–${r.tempMax.toFixed(0)}${DISPLAY_UNITS.temp}`
                           : "—"}
@@ -545,7 +583,7 @@ export default function WeeklyWeatherCalendar() {
                     </div>
                     <div className="flex justify-between gap-2">
                       <span className="text-muted-foreground">Wind / Gust</span>
-                      <span className="font-medium tabular-nums">
+                      <span className="font-mono text-xs tabular-nums">
                         {typeof r?.windSpeedMax === "number" && typeof r?.windGustsMax === "number"
                           ? `${Math.round(r.windSpeedMax)} / ${Math.round(r.windGustsMax)} ${DISPLAY_UNITS.wind}`
                           : "—"}
@@ -553,7 +591,7 @@ export default function WeeklyWeatherCalendar() {
                     </div>
                     <div className="flex justify-between gap-2">
                       <span className="text-muted-foreground">Precip</span>
-                      <span className="font-medium tabular-nums">
+                      <span className="font-mono text-xs tabular-nums">
                         {typeof r?.precipProbMax === "number" ? `${Math.round(r.precipProbMax)}%` : "—"}
                         {typeof r?.precipSum === "number" ? ` · ${r.precipSum.toFixed(1)} ${DISPLAY_UNITS.precip}` : ""}
                       </span>

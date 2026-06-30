@@ -2,515 +2,348 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useUser } from "@/actions/auth";
 import WeeklyWeatherCalendar from "@/components/weather";
-import {
-  useStatisticsOverview,
-  useJobStats,
-} from "@/actions/statistics";
-import {
-  useSchedules,
-  SCHEDULE_STATUS_LABELS,
-  type ScheduleStatus,
-} from "@/actions/schedules";
-import { useJobs, JOB_TYPE_LABELS, type JobType } from "@/actions/jobs";
-import { StatsCard } from "@/components/stats-card";
-import { ScheduleStatusBadge, JobTypeBadge } from "@/components/status-badge";
-import {
-  Building2,
-  Briefcase,
-  Calendar,
-  Plane,
-  Users,
-  Plus,
-  ArrowRight,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useStatisticsOverview, useJobStats } from "@/actions/statistics";
+import { useSchedules, type ScheduleStatus } from "@/actions/schedules";
+import { useDrones, DRONE_STATUS_LABELS, type DroneStatus } from "@/actions/drones";
+import { FleetSnapshot } from "@/components/fleet-snapshot";
+import { LiveOpsFeed } from "@/components/live-ops-feed";
+import { SegmentedBar, type Segment } from "@/components/segmented-bar";
+import { DroneStatusBadge } from "@/components/status-badge";
+import { StatusDot } from "@/components/status-dot";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import type { ChartConfig } from "@/components/ui/chart";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-} from "@/components/ui/chart";
-import {
-  Pie,
-  PieChart,
-  Bar,
-  BarChart,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-} from "recharts";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardIndex,
 });
 
-/* ---------- Chart configs ---------- */
-
-const scheduleStatusConfig = {
-  ASSIGNED:    { label: "Assigned",    color: "#22D3EE" },
-  IN_PROGRESS: { label: "In Progress", color: "#818CF8" },
-  COMPLETED:   { label: "Completed",   color: "#34D399" },
-  CANCELLED:   { label: "Cancelled",   color: "#475569" },
-} satisfies ChartConfig;
-
-const droneStatusConfig = {
-  AVAILABLE:      { label: "Available",      color: "#34D399" },
-  MAINTENANCE:    { label: "Maintenance",    color: "#FBBF24" },
-  OUT_OF_SERVICE: { label: "Out of Service", color: "#F87171" },
-} satisfies ChartConfig;
-
-const jobTypeConfig = {
-  INSPECTION: { label: "Inspection", color: "#818CF8" },
-  CLEANING:   { label: "Cleaning",   color: "#22D3EE" },
-} satisfies ChartConfig;
-
-/* ---------- Quick actions ---------- */
-
-const quickActions = [
-  { label: "New Site", to: "/dashboard/sites/new" as const, icon: Building2 },
-  { label: "New Job", to: "/dashboard/jobs/new" as const, icon: Briefcase },
-  { label: "New Schedule", to: "/dashboard/schedules/new" as const, icon: Calendar },
-  { label: "New Drone", to: "/dashboard/drones/new" as const, icon: Plane },
-];
-
 /* ---------- Helpers ---------- */
 
-function ChartSkeleton() {
+const UAE_TZ = "Asia/Dubai";
+
+function getAUHDate(): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: UAE_TZ,
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  })
+    .format(new Date())
+    .toUpperCase()
+    .replace(/,/g, " ·");
+}
+
+function todayRange(): { from: string; to: string } {
+  const now = new Date();
+  const auhOffset = 4 * 60;
+  const localOffset = -now.getTimezoneOffset();
+  const diff = (auhOffset - localOffset) * 60000;
+  const auhNow = new Date(now.getTime() + diff);
+
+  const startOfDay = new Date(auhNow);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(auhNow);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  return {
+    from: new Date(startOfDay.getTime() - diff).toISOString(),
+    to: new Date(endOfDay.getTime() - diff).toISOString(),
+  };
+}
+
+/* ---------- Today's Timeline ---------- */
+
+const TIMELINE_START_H = 6;
+const TIMELINE_END_H = 22;
+const TIMELINE_DURATION_MS = (TIMELINE_END_H - TIMELINE_START_H) * 3600000;
+
+const statusTimelineColor: Record<ScheduleStatus, string> = {
+  ASSIGNED:    "var(--primary)",
+  IN_PROGRESS: "var(--teal)",
+  COMPLETED:   "var(--success)",
+  CANCELLED:   "var(--muted-foreground)",
+};
+
+function TodayTimeline() {
+  const range = useMemo(() => todayRange(), []);
+
+  const { data, isLoading } = useSchedules(
+    { from: range.from, to: range.to, pageSize: 100 },
+    { refetchInterval: 60_000 } as Parameters<typeof useSchedules>[1]
+  );
+
+  const schedules = data?.items ?? [];
+
+  const now = new Date();
+  const todayStart = new Date(now);
+  todayStart.setHours(TIMELINE_START_H, 0, 0, 0);
+  const nowPct = Math.min(
+    100,
+    Math.max(0, ((now.getTime() - todayStart.getTime()) / TIMELINE_DURATION_MS) * 100)
+  );
+
+  const hours = Array.from({ length: TIMELINE_END_H - TIMELINE_START_H + 1 }, (_, i) => i + TIMELINE_START_H);
+
+  if (isLoading) {
+    return <div className="h-24 animate-pulse rounded-[3px] bg-muted" />;
+  }
+
   return (
-    <div className="flex items-center justify-center h-[220px]">
-      <Skeleton className="h-[180px] w-[180px] rounded-full" />
+    <div className="relative overflow-x-auto">
+      {/* Hour markers */}
+      <div className="relative h-5 flex border-b border-border">
+        {hours.map((h) => (
+          <div
+            key={h}
+            className="flex-1 flex items-end pb-0.5"
+          >
+            <span className="font-mono text-[9px] text-muted-foreground/50">
+              {String(h).padStart(2, "0")}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Schedule slots */}
+      <div className="relative mt-1 h-24 min-w-[400px]">
+        {/* Now line */}
+        {nowPct > 0 && nowPct < 100 && (
+          <div
+            className="absolute top-0 bottom-0 z-10 w-px"
+            style={{ left: `${nowPct}%`, backgroundColor: "var(--primary)" }}
+          >
+            <div
+              className="absolute -top-1 -translate-x-1/2 h-2 w-2 rounded-full"
+              style={{ backgroundColor: "var(--primary)" }}
+            />
+          </div>
+        )}
+
+        {schedules.length === 0 && (
+          <div className="flex h-full items-center justify-center font-mono text-[10px] text-muted-foreground/40">
+            NO SCHEDULES TODAY
+          </div>
+        )}
+
+        {schedules.map((s, i) => {
+          const start = new Date(s.startAt);
+          const end = new Date(s.endAt);
+          const todayStartMs = todayStart.getTime();
+          const leftPct = Math.max(
+            0,
+            ((start.getTime() - todayStartMs) / TIMELINE_DURATION_MS) * 100
+          );
+          const widthPct = Math.max(
+            2,
+            ((end.getTime() - start.getTime()) / TIMELINE_DURATION_MS) * 100
+          );
+          if (leftPct > 100) return null;
+
+          const color = statusTimelineColor[s.status as ScheduleStatus] ?? "var(--muted-foreground)";
+          const topPct = (i % 3) * 33;
+
+          return (
+            <div
+              key={s.id}
+              className="absolute rounded-[2px] px-1 overflow-hidden flex flex-col justify-start"
+              style={{
+                left: `${leftPct}%`,
+                width: `${Math.min(widthPct, 100 - leftPct)}%`,
+                top: `${topPct}%`,
+                height: "30%",
+                backgroundColor: `${color}22`,
+                borderLeft: `2px solid ${color}`,
+              }}
+              title={`${s.job?.name ?? s.jobId} — ${s.pilot?.name ?? "—"}`}
+            >
+              <span className="font-mono text-[9px] truncate" style={{ color }}>
+                {new Date(s.startAt).toLocaleTimeString("en-GB", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  timeZone: UAE_TZ,
+                  hour12: false,
+                })}
+              </span>
+              <span className="text-[9px] truncate text-foreground/70">
+                {s.job?.name ?? s.jobId}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-function TableSkeleton({ cols }: { cols: number }) {
+/* ---------- Fleet Status Column ---------- */
+
+const droneStatusVariant: Record<DroneStatus, "live" | "warn" | "down"> = {
+  AVAILABLE:      "live",
+  MAINTENANCE:    "warn",
+  OUT_OF_SERVICE: "down",
+};
+
+function FleetStatusList() {
+  const { data, isLoading } = useDrones({ pageSize: 20 });
+  const drones = data?.items ?? [];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-8 animate-pulse rounded-[3px] bg-muted" />
+        ))}
+      </div>
+    );
+  }
+
+  if (drones.length === 0) {
+    return (
+      <p className="py-4 text-center font-mono text-[10px] text-muted-foreground">
+        NO DRONES
+      </p>
+    );
+  }
+
   return (
-    <>
-      {Array.from({ length: 4 }).map((_, i) => (
-        <TableRow key={i}>
-          <TableCell colSpan={cols} className="py-3">
-            <Skeleton className="h-5 w-full" />
-          </TableCell>
-        </TableRow>
+    <div className="divide-y divide-border/40">
+      {drones.map((d) => (
+        <Link
+          key={d.id}
+          to="/dashboard/drones/$droneId"
+          params={{ droneId: d.id }}
+          className="flex items-center gap-2 py-2 hover:bg-muted/20 px-1 rounded-[3px] transition-colors"
+        >
+          <StatusDot variant={droneStatusVariant[d.status as DroneStatus] ?? "idle"} />
+          <span className="font-mono text-[11px] text-muted-foreground flex-1 min-w-0 truncate">
+            {d.serialNumber}
+          </span>
+          <span className="text-xs text-foreground truncate max-w-[80px]">{d.name}</span>
+          <DroneStatusBadge status={d.status} label={DRONE_STATUS_LABELS[d.status as DroneStatus] ?? d.status} />
+        </Link>
       ))}
-    </>
+    </div>
   );
 }
 
-function formatShortDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
-}
+/* ---------- Quick Actions ---------- */
 
-function formatShortDateTime(iso: string) {
-  return new Date(iso).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+const quickActions = [
+  { label: "New Site",     to: "/dashboard/sites/new"     as const },
+  { label: "New Job",      to: "/dashboard/jobs/new"      as const },
+  { label: "New Schedule", to: "/dashboard/schedules/new" as const },
+  { label: "New Drone",    to: "/dashboard/drones/new"    as const },
+];
 
 /* ---------- Main ---------- */
 
 function DashboardIndex() {
   const { data: user } = useUser();
-  const { data: stats, isLoading } = useStatisticsOverview();
-  const { data: jobStats, isLoading: jobStatsLoading } = useJobStats();
+  const { data: stats } = useStatisticsOverview();
+  const { data: jobStats } = useJobStats();
 
-  const now = useMemo(() => new Date().toISOString(), []);
-  const { data: upcomingData, isLoading: upcomingLoading } = useSchedules({
-    from: now,
-    pageSize: 5,
-  });
-  const { data: recentJobsData, isLoading: recentJobsLoading } = useJobs({
-    pageSize: 5,
-  });
+  const firstName = user?.name ? user.name.split(" ")[0] : "";
+  const auhDate = useMemo(() => getAUHDate(), []);
 
-  const upcomingSchedules = upcomingData?.items ?? [];
-  const recentJobs = recentJobsData?.items ?? [];
+  const scheduleSegments: Segment[] = [
+    { label: "Assigned",    value: stats?.schedulesByStatus?.ASSIGNED    ?? 0, color: "var(--primary)" },
+    { label: "In Progress", value: stats?.schedulesByStatus?.IN_PROGRESS ?? 0, color: "var(--teal)" },
+    { label: "Completed",   value: stats?.schedulesByStatus?.COMPLETED   ?? 0, color: "var(--success)" },
+    { label: "Cancelled",   value: stats?.schedulesByStatus?.CANCELLED   ?? 0, color: "var(--muted-foreground)" },
+  ];
 
-  const scheduleChartData = stats
-    ? Object.entries(stats.schedulesByStatus).map(([key, value]) => ({
-        status: key,
-        count: value,
-        fill: `var(--color-${key})`,
-      }))
-    : [];
-
-  const droneChartData = stats
-    ? Object.entries(stats.dronesByStatus).map(([key, value]) => ({
-        status: key,
-        count: value,
-        fill: `var(--color-${key})`,
-      }))
-    : [];
-
-  const jobChartData = jobStats
-    ? Object.entries(jobStats.byType).map(([key, value]) => ({
-        type: key,
-        count: value,
-        fill: `var(--color-${key})`,
-      }))
-    : [];
-
-  const totalSchedulesForChart = scheduleChartData.reduce(
-    (sum, d) => sum + d.count,
-    0
-  );
-  const totalDronesForChart = droneChartData.reduce(
-    (sum, d) => sum + d.count,
-    0
-  );
+  const jobSegments: Segment[] = [
+    { label: "Inspection", value: jobStats?.byType?.INSPECTION ?? 0, color: "var(--chart-3)" },
+    { label: "Cleaning",   value: jobStats?.byType?.CLEANING   ?? 0, color: "var(--teal)" },
+  ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back{user?.name ? `, ${user.name}` : ""}!
+    <div className="dashboard-grid-bg space-y-6">
+      {/* Welcome line */}
+      <div className="flex items-baseline justify-between gap-4">
+        <h1 className="text-2xl font-display font-bold">
+          Welcome back{firstName ? `, ${firstName}.` : "."}
         </h1>
-        <p className="text-muted-foreground mt-1">
-          Here's an overview of your operations.
-        </p>
+        <span className="font-mono text-[11px] text-muted-foreground shrink-0">{auhDate}</span>
       </div>
 
-      {/* ── Stat cards ── */}
-      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-        <Link to="/dashboard/sites" className="block">
-          <StatsCard
-            title="Sites"
-            value={stats?.totalSites ?? 0}
-            icon={Building2}
-            iconColor="text-blue-500"
-            isLoading={isLoading}
-          />
-        </Link>
-        <Link to="/dashboard/jobs" className="block">
-          <StatsCard
-            title="Jobs"
-            value={stats?.totalJobs ?? 0}
-            icon={Briefcase}
-            iconColor="text-green-500"
-            isLoading={isLoading}
-          />
-        </Link>
-        <Link to="/dashboard/schedules" className="block">
-          <StatsCard
-            title="Schedules"
-            value={stats?.totalSchedules ?? 0}
-            icon={Calendar}
-            iconColor="text-purple-500"
-            isLoading={isLoading}
-          />
-        </Link>
-        <Link to="/dashboard/drones" className="block">
-          <StatsCard
-            title="Drones"
-            value={stats?.totalDrones ?? 0}
-            icon={Plane}
-            iconColor="text-orange-500"
-            isLoading={isLoading}
-          />
-        </Link>
-        <StatsCard
-          title="Users"
-          value={stats?.totalUsers ?? 0}
-          icon={Users}
-          iconColor="text-cyan-500"
-          isLoading={isLoading}
-        />
-      </div>
+      {/* Fleet snapshot — full width */}
+      <FleetSnapshot />
 
-      {/* ── Charts row ── */}
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-        {/* Schedules by status – donut */}
-        <Card className="overflow-hidden">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Schedules by Status</CardTitle>
+      {/* Three-column ops grid */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        {/* Live ops feed — 4 cols */}
+        <Card className="lg:col-span-4">
+          <CardHeader className="pb-2 pt-4 px-4">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Live Ops Feed
+            </p>
           </CardHeader>
-          <CardContent className="px-2 sm:px-6">
-            {isLoading ? (
-              <ChartSkeleton />
-            ) : totalSchedulesForChart === 0 ? (
-              <div className="flex items-center justify-center h-[220px] text-sm text-muted-foreground">
-                No schedules yet
-              </div>
-            ) : (
-              <ChartContainer
-                config={scheduleStatusConfig}
-                className="mx-auto aspect-square max-h-[280px] w-full [&_.recharts-pie-label-text]:fill-foreground"
-              >
-                <PieChart>
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent hideLabel />}
-                  />
-                  <Pie
-                    data={scheduleChartData}
-                    dataKey="count"
-                    nameKey="status"
-                    innerRadius="35%"
-                    outerRadius="55%"
-                    strokeWidth={3}
-                    stroke="hsl(var(--background))"
-                  />
-                  <ChartLegend
-                    content={<ChartLegendContent nameKey="status" />}
-                    className="flex-wrap gap-x-3 gap-y-1 justify-center text-xs"
-                  />
-                </PieChart>
-              </ChartContainer>
-            )}
+          <CardContent className="px-2 pb-2">
+            <LiveOpsFeed />
           </CardContent>
         </Card>
 
-        {/* Drone fleet status – donut */}
-        <Card className="overflow-hidden">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Drone Fleet Status</CardTitle>
+        {/* Today's timeline — 5 cols */}
+        <Card className="lg:col-span-5">
+          <CardHeader className="pb-2 pt-4 px-4">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Today's Timeline
+            </p>
           </CardHeader>
-          <CardContent className="px-2 sm:px-6">
-            {isLoading ? (
-              <ChartSkeleton />
-            ) : totalDronesForChart === 0 ? (
-              <div className="flex items-center justify-center h-[220px] text-sm text-muted-foreground">
-                No drones yet
-              </div>
-            ) : (
-              <ChartContainer
-                config={droneStatusConfig}
-                className="mx-auto aspect-square max-h-[280px] w-full [&_.recharts-pie-label-text]:fill-foreground"
-              >
-                <PieChart>
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent hideLabel />}
-                  />
-                  <Pie
-                    data={droneChartData}
-                    dataKey="count"
-                    nameKey="status"
-                    innerRadius="35%"
-                    outerRadius="55%"
-                    strokeWidth={3}
-                    stroke="hsl(var(--background))"
-                  />
-                  <ChartLegend
-                    content={<ChartLegendContent nameKey="status" />}
-                    className="flex-wrap gap-x-3 gap-y-1 justify-center text-xs"
-                  />
-                </PieChart>
-              </ChartContainer>
-            )}
+          <CardContent className="px-4 pb-4">
+            <TodayTimeline />
           </CardContent>
         </Card>
 
-        {/* Jobs by type – bar */}
-        <Card className="md:col-span-2 xl:col-span-1 overflow-hidden">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Jobs by Type</CardTitle>
+        {/* Fleet status — 3 cols */}
+        <Card className="lg:col-span-3">
+          <CardHeader className="pb-2 pt-4 px-4">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Fleet Status
+            </p>
           </CardHeader>
-          <CardContent className="px-2 sm:px-6">
-            {jobStatsLoading ? (
-              <div className="flex items-center justify-center h-[220px]">
-                <Skeleton className="h-[180px] w-full rounded" />
-              </div>
-            ) : !jobStats || jobStats.total === 0 ? (
-              <div className="flex items-center justify-center h-[220px] text-sm text-muted-foreground">
-                No jobs yet
-              </div>
-            ) : (
-              <ChartContainer
-                config={jobTypeConfig}
-                className="mx-auto h-[250px] w-full"
-              >
-                <BarChart
-                  data={jobChartData}
-                  layout="vertical"
-                  margin={{ left: 0, right: 16 }}
-                >
-                  <CartesianGrid horizontal={false} />
-                  <YAxis
-                    dataKey="type"
-                    type="category"
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(v: string) =>
-                      jobTypeConfig[v as keyof typeof jobTypeConfig]?.label ?? v
-                    }
-                    width={80}
-                  />
-                  <XAxis type="number" hide />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent hideLabel />}
-                  />
-                  <Bar dataKey="count" radius={6} />
-                </BarChart>
-              </ChartContainer>
-            )}
+          <CardContent className="px-2 pb-2">
+            <FleetStatusList />
           </CardContent>
         </Card>
       </div>
 
-      {/* ── Upcoming Schedules + Recent Jobs ── */}
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-        {/* Upcoming Schedules */}
+      {/* Segmented bars row */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base">Upcoming Schedules</CardTitle>
-            <Link to="/dashboard/schedules">
-              <Button variant="ghost" size="sm" className="gap-1 text-xs text-muted-foreground">
-                View all <ArrowRight className="h-3 w-3" />
-              </Button>
-            </Link>
+          <CardHeader className="pb-2 pt-4 px-4">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Schedules by Status
+            </p>
           </CardHeader>
-          <CardContent className="px-0 pb-0">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead>Site</TableHead>
-                  <TableHead>Job</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Pilot</TableHead>
-                  <TableHead>Start</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {upcomingLoading ? (
-                  <TableSkeleton cols={5} />
-                ) : upcomingSchedules.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="py-8 text-center text-muted-foreground"
-                    >
-                      No upcoming schedules
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  upcomingSchedules.map((s) => (
-                    <TableRow key={s.id}>
-                      <TableCell className="text-muted-foreground truncate max-w-[140px]">
-                        {s.job?.site?.name ?? "—"}
-                      </TableCell>
-                      <TableCell className="font-medium truncate max-w-[140px]">
-                        <Link
-                          to="/dashboard/schedules/$scheduleId"
-                          params={{ scheduleId: s.id }}
-                          className="hover:underline"
-                        >
-                          {s.job?.name ?? s.jobId}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <ScheduleStatusBadge
-                          status={s.status}
-                          label={SCHEDULE_STATUS_LABELS[s.status as ScheduleStatus] ?? s.status}
-                        />
-                      </TableCell>
-                      <TableCell className="truncate max-w-[100px]">
-                        {s.pilot?.name ?? "—"}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {formatShortDateTime(s.startAt)}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+          <CardContent className="px-4 pb-4">
+            <SegmentedBar segments={scheduleSegments} />
           </CardContent>
         </Card>
 
-        {/* Recent Jobs */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base">Recent Jobs</CardTitle>
-            <Link to="/dashboard/jobs">
-              <Button variant="ghost" size="sm" className="gap-1 text-xs text-muted-foreground">
-                View all <ArrowRight className="h-3 w-3" />
-              </Button>
-            </Link>
+          <CardHeader className="pb-2 pt-4 px-4">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Jobs by Type
+            </p>
           </CardHeader>
-          <CardContent className="px-0 pb-0">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead>Name</TableHead>
-                  <TableHead>Site</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Created</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentJobsLoading ? (
-                  <TableSkeleton cols={4} />
-                ) : recentJobs.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={4}
-                      className="py-8 text-center text-muted-foreground"
-                    >
-                      No jobs yet
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  recentJobs.map((j) => (
-                    <TableRow key={j.id}>
-                      <TableCell className="font-medium truncate max-w-[160px]">
-                        <Link
-                          to="/dashboard/jobs/$jobId/edit"
-                          params={{ jobId: j.id }}
-                          className="hover:underline"
-                        >
-                          {j.name}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground truncate max-w-[140px]">
-                        {j.site?.name ?? j.siteId}
-                      </TableCell>
-                      <TableCell>
-                        <JobTypeBadge
-                          type={j.type}
-                          label={JOB_TYPE_LABELS[j.type as JobType] ?? j.type}
-                        />
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {formatShortDate(j.createdAt)}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+          <CardContent className="px-4 pb-4">
+            <SegmentedBar segments={jobSegments} />
           </CardContent>
         </Card>
       </div>
 
-      {/* ── Weather (standalone full-width) ── */}
+      {/* Weather calendar */}
       <WeeklyWeatherCalendar />
 
-      {/* ── Quick Actions (minimal inline) ── */}
+      {/* Quick actions */}
       <div className="flex flex-wrap items-center gap-2">
         {quickActions.map((action) => (
           <Link key={action.to} to={action.to}>
-            <Button variant="outline" size="sm" className="gap-1.5">
-              <Plus className="h-3.5 w-3.5" />
+            <Button variant="ghost" size="sm" className="gap-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground hover:text-primary">
+              <span className="text-primary font-bold">+</span>
               {action.label}
             </Button>
           </Link>
