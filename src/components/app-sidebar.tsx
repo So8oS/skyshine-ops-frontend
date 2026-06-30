@@ -25,6 +25,8 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useLogout, useUser } from "@/actions/auth";
+import { useStatisticsOverview } from "@/actions/statistics";
+import { StatusDot } from "./status-dot";
 
 const navItems = [
   { title: "Sites",     url: "/dashboard/sites",     icon: Building2 },
@@ -33,6 +35,39 @@ const navItems = [
   { title: "Drones",    url: "/dashboard/drones",    icon: Plane     },
   { title: "Forms",     url: "/dashboard/forms",     icon: FileText  },
 ];
+
+function SystemStatus() {
+  const { data: stats } = useStatisticsOverview();
+  const available = stats?.dronesByStatus?.AVAILABLE ?? 0;
+  const total = stats?.totalDrones ?? 0;
+  const isOperational = !stats || available > 0;
+
+  return (
+    <div className="px-2 py-2 space-y-1">
+      <div className="flex items-center justify-between">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/60">
+          System
+        </span>
+        <div className="flex items-center gap-1">
+          <StatusDot variant={isOperational ? "live" : "warn"} pulse={isOperational} />
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/80">
+            {isOperational ? "Operational" : "Degraded"}
+          </span>
+        </div>
+      </div>
+      {stats && (
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/60">
+            Drones
+          </span>
+          <span className="font-mono text-[10px] tracking-wider text-muted-foreground/80">
+            {available}/{total} READY
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function AppSidebar() {
   const { data: user } = useUser();
@@ -47,7 +82,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link to="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-cyan-500/10 border border-cyan-500/20 p-1">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 p-1">
                   <img
                     src="/skyshinelogonobgwhite.png"
                     alt="Skyshine"
@@ -56,7 +91,9 @@ export function AppSidebar() {
                 </div>
                 <div className="flex flex-col gap-0 leading-none">
                   <span className="font-semibold text-foreground">Skyshine Ops</span>
-                  <span className="text-[11px] text-muted-foreground">Operations Center</span>
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    OPS · v0.1
+                  </span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -114,18 +151,35 @@ export function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={() => logout.mutate()}
-              disabled={logout.isPending}
-              tooltip="Logout"
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>{logout.isPending ? "Logging out…" : (user?.name ?? "Logout")}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
         </SidebarMenu>
+
+        <SidebarSeparator />
+
+        {/* System status block */}
+        <SystemStatus />
+
+        <SidebarSeparator />
+
+        {/* User block */}
+        <div className="flex items-center justify-between gap-2 px-2 py-2">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-foreground">
+              {user?.name ?? "—"}
+            </p>
+            {/* TODO: backend addition needed — User.role */}
+            <p className="truncate font-mono text-[10px] text-muted-foreground/60">
+              {user?.email ?? ""}
+            </p>
+          </div>
+          <button
+            onClick={() => logout.mutate()}
+            disabled={logout.isPending}
+            title="Logout"
+            className="shrink-0 rounded-md p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </SidebarFooter>
 
       <SidebarRail />
