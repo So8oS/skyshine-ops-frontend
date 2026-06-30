@@ -1,14 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Calendar, Plus, Loader2, Pencil, List, CalendarDays } from "lucide-react";
+import { Calendar, Plus, Loader2, List, CalendarDays } from "lucide-react";
 import { useMemo, useCallback, useState } from "react";
 import {
   useSchedules,
@@ -29,14 +21,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScheduleStatusBadge } from "@/components/status-badge";
+import { StatusDot } from "@/components/status-dot";
 import { FilterDatePicker } from "@/components/filter-date-picker";
 import { EmptyState } from "@/components/empty-state";
 import { SiteErrorFallback } from "@/components/site-error-fallback";
 import { ScheduleCalendar } from "@/features/calendar/schedule-calendar";
 import { getViewRange } from "@/features/calendar/helpers";
+import { cn } from "@/lib/utils";
 
 export type CalendarView = "day" | "week" | "month";
-
 
 export type SchedulesSearch = {
   view?: "list" | "calendar";
@@ -77,10 +70,26 @@ export const Route = createFileRoute("/dashboard/schedules/")({
   },
 });
 
-function formatScheduleTime(iso: string) {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "short",
-    timeStyle: "short",
+const statusDotVariant: Record<ScheduleStatus, "live" | "warn" | "ok" | "idle"> = {
+  IN_PROGRESS: "live",
+  ASSIGNED:    "warn",
+  COMPLETED:   "ok",
+  CANCELLED:   "idle",
+};
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+  }).toUpperCase();
+}
+
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Dubai",
   });
 }
 
@@ -164,36 +173,35 @@ function SchedulesPage() {
   const setPage = (p: number) => setSearchParams({ page: p });
 
   if (error) {
-    return (
-      <SiteErrorFallback error={error} title="Failed to load schedules" />
-    );
+    return <SiteErrorFallback error={error} title="Failed to load schedules" />;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
         <div>
-            <h1 className="text-2xl font-bold tracking-tight">Schedules</h1>
-            <p className="text-muted-foreground">Plan and manage schedules</p>
+          <h1 className="text-2xl font-bold tracking-tight">Schedules</h1>
+          <p className="text-muted-foreground">Plan and manage schedules</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex rounded-lg border bg-muted/30 p-0.5">
+          {/* View toggle */}
+          <div className="flex rounded-[6px] border border-border bg-muted/30 p-0.5">
             <Button
               variant={!isCalendarView ? "secondary" : "ghost"}
               size="sm"
-              className="h-8 px-3"
+              className="h-7 px-3 font-sans text-xs"
               onClick={() => setSearchParams({ view: "list" })}
             >
-              <List className="h-4 w-4 mr-1.5" />
+              <List className="h-3.5 w-3.5 mr-1.5" />
               List
             </Button>
             <Button
               variant={isCalendarView ? "secondary" : "ghost"}
               size="sm"
-              className="h-8 px-3"
+              className="h-7 px-3 font-sans text-xs"
               onClick={() => setSearchParams({ view: "calendar" })}
             >
-              <CalendarDays className="h-4 w-4 mr-1.5" />
+              <CalendarDays className="h-3.5 w-3.5 mr-1.5" />
               Calendar
             </Button>
           </div>
@@ -216,223 +224,174 @@ function SchedulesPage() {
         />
       ) : (
         <>
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4 flex-wrap">
-            <Select
-              value={jobId || "all"}
-              onValueChange={(v) =>
-                setSearchParams({ jobId: v === "all" ? undefined : v, page: 1 })
-              }
-            >
-              <SelectTrigger className="w-full md:w-[200px]">
-                <SelectValue placeholder="Job" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All jobs</SelectItem>
-                {jobs.map((j) => (
-                  <SelectItem key={j.id} value={j.id}>
-                    {j.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={siteId || "all"}
-              onValueChange={(v) =>
-                setSearchParams({ siteId: v === "all" ? undefined : v, page: 1 })
-              }
-            >
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Site" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All sites</SelectItem>
-                {sites.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={status || "all"}
-              onValueChange={(v) =>
-                setSearchParams({ status: v === "all" ? undefined : v, page: 1 })
-              }
-            >
-              <SelectTrigger className="w-full md:w-[140px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                {(Object.keys(SCHEDULE_STATUS_LABELS) as ScheduleStatus[]).map(
-                  (k) => (
-                    <SelectItem key={k} value={k}>
-                      {SCHEDULE_STATUS_LABELS[k]}
-                    </SelectItem>
-                  )
-                )}
-              </SelectContent>
-            </Select>
-            <div className="flex items-center gap-2 flex-wrap">
-              <FilterDatePicker
-                label="From (start ≥)"
-                value={from}
-                onChange={(iso) => setSearchParams({ from: iso, page: 1 })}
-              />
-              <FilterDatePicker
-                label="To (end ≤)"
-                value={to}
-                onChange={(iso) => setSearchParams({ to: iso, page: 1 })}
-              />
-            </div>
-            <Select
-              value={String(pageSize)}
-              onValueChange={(v) =>
-                setSearchParams({ pageSize: Number(v), page: 1 })
-              }
-            >
-              <SelectTrigger className="w-full md:w-[120px]">
-                <SelectValue placeholder="Per page" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="20">20</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+          {/* Filters */}
+          <Card>
+            <CardContent className="pt-4 pb-4">
+              <div className="flex flex-col md:flex-row gap-3 flex-wrap">
+                <Select
+                  value={jobId || "all"}
+                  onValueChange={(v) =>
+                    setSearchParams({ jobId: v === "all" ? undefined : v, page: 1 })
+                  }
+                >
+                  <SelectTrigger className="w-full md:w-[200px]">
+                    <SelectValue placeholder="Job" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All jobs</SelectItem>
+                    {jobs.map((j) => (
+                      <SelectItem key={j.id} value={j.id}>{j.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={siteId || "all"}
+                  onValueChange={(v) =>
+                    setSearchParams({ siteId: v === "all" ? undefined : v, page: 1 })
+                  }
+                >
+                  <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Site" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All sites</SelectItem>
+                    {sites.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={status || "all"}
+                  onValueChange={(v) =>
+                    setSearchParams({ status: v === "all" ? undefined : v, page: 1 })
+                  }
+                >
+                  <SelectTrigger className="w-full md:w-[140px]">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All statuses</SelectItem>
+                    {(Object.keys(SCHEDULE_STATUS_LABELS) as ScheduleStatus[]).map((k) => (
+                      <SelectItem key={k} value={k}>{SCHEDULE_STATUS_LABELS[k]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <FilterDatePicker
+                    label="From"
+                    value={from}
+                    onChange={(iso) => setSearchParams({ from: iso, page: 1 })}
+                  />
+                  <FilterDatePicker
+                    label="To"
+                    value={to}
+                    onChange={(iso) => setSearchParams({ to: iso, page: 1 })}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Site</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Pilot</TableHead>
-              <TableHead>Drone</TableHead>
-              <TableHead>Job</TableHead>
-              <TableHead>Start</TableHead>
-              <TableHead>End</TableHead>
-              <TableHead className="text-right w-[80px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading
-              ? Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell colSpan={8} className="py-6">
-                      <div className="h-6 animate-pulse rounded bg-muted" />
-                    </TableCell>
-                  </TableRow>
-                ))
-              : schedules.map((s) => (
-                  <TableRow key={s.id}>
-                    <TableCell>
-                      <Link
-                        to="/dashboard/schedules/$scheduleId"
-                        params={{ scheduleId: s.id }}
-                        className="text-muted-foreground hover:text-foreground"
-                      >
-                        {s.job?.site?.name ?? "—"}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <ScheduleStatusBadge
-                        status={s.status}
-                        label={SCHEDULE_STATUS_LABELS[s.status] ?? s.status}
+          {/* Dense list */}
+          <div className="rounded-[6px] border border-border overflow-hidden">
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-[72px] animate-pulse bg-muted border-b border-border last:border-0" />
+              ))
+            ) : schedules.length === 0 ? null : (
+              schedules.map((s) => {
+                const statusLabel = SCHEDULE_STATUS_LABELS[s.status as ScheduleStatus] ?? s.status;
+                const dateStr = formatDate(s.startAt);
+                const timeStr = formatTime(s.startAt);
+                const siteName = s.job?.site?.name ?? "—";
+                const jobName = s.job?.name ?? s.jobId;
+                const pilotName = s.pilot?.name ?? "—";
+                const droneSerial = s.drone?.serialNumber ?? s.drone?.name ?? "—";
+
+                return (
+                  <Link
+                    key={s.id}
+                    to="/dashboard/schedules/$scheduleId"
+                    params={{ scheduleId: s.id }}
+                    className={cn(
+                      "relative flex items-stretch border-b border-border last:border-0 transition-colors",
+                      "hover:bg-card/60",
+                      "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary before:opacity-0 hover:before:opacity-100 before:transition-opacity"
+                    )}
+                  >
+                    {/* Date + time rail */}
+                    <div className="flex flex-col items-start justify-center gap-0.5 w-[72px] shrink-0 px-3 py-3 border-r border-border/50">
+                      <span className="font-mono text-[11px] font-semibold text-foreground leading-none">
+                        {dateStr.split(" ")[0]}
+                      </span>
+                      <span className="font-mono text-[10px] text-muted-foreground leading-none">
+                        {dateStr.split(" ").slice(1).join(" ")}
+                      </span>
+                      <span className="font-mono text-[11px] text-primary mt-1 leading-none">
+                        {timeStr}
+                      </span>
+                    </div>
+
+                    {/* Schedule details */}
+                    <div className="flex flex-1 items-center gap-3 px-4 py-3 min-w-0">
+                      <StatusDot
+                        variant={statusDotVariant[s.status as ScheduleStatus] ?? "idle"}
+                        pulse={s.status === "IN_PROGRESS"}
                       />
-                    </TableCell>
-                    <TableCell>
-                      {s.pilot?.name ?? s.pilotId}
-                    </TableCell>
-                    <TableCell>
-                      {s.drone?.name ?? s.droneId}
-                      {s.drone?.serialNumber ? (
-                        <span className="text-muted-foreground ml-1">
-                          ({s.drone.serialNumber})
-                        </span>
-                      ) : null}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      <Link
-                        to="/dashboard/schedules/$scheduleId"
-                        params={{ scheduleId: s.id }}
-                        className="hover:underline"
-                      >
-                        {s.job?.name ?? s.jobId}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{formatScheduleTime(s.startAt)}</TableCell>
-                    <TableCell>{formatScheduleTime(s.endAt)}</TableCell>
-                    <TableCell className="text-right">
-                      <Link
-                        to="/dashboard/schedules/$scheduleId/edit"
-                        params={{ scheduleId: s.id }}
-                      >
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <Pencil className="h-4 w-4" />
-                          <span className="sr-only">Edit</span>
-                        </Button>
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      {!isLoading && schedules.length === 0 && (
-        <EmptyState
-          icon={Calendar}
-          title="No schedules found"
-          description={
-            jobId || siteId || status || from || to
-              ? "Try adjusting filters"
-              : "Create your first schedule"
-          }
-          action={
-            !jobId && !siteId && !status && !from && !to
-              ? { label: "Add Schedule", to: "/dashboard/schedules/new" }
-              : undefined
-          }
-        />
-      )}
-
-      {!isLoading && schedules.length > 0 && totalPages > 1 && (
-        <div className="flex items-center justify-between border-t pt-4">
-          <p className="text-sm text-muted-foreground">
-            Page {page} of {totalPages} ({total} total)
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(Math.max(1, page - 1))}
-              disabled={page <= 1}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(Math.min(totalPages, page + 1))}
-              disabled={page >= totalPages}
-            >
-              Next
-            </Button>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-display font-semibold text-sm leading-tight truncate">
+                          {siteName !== "—" ? `${siteName} — ` : ""}{jobName}
+                        </p>
+                        <p className="font-mono text-[10px] text-muted-foreground mt-0.5 truncate">
+                          {pilotName} · {droneSerial}
+                        </p>
+                      </div>
+                      <ScheduleStatusBadge status={s.status} label={statusLabel} />
+                    </div>
+                  </Link>
+                );
+              })
+            )}
           </div>
-        </div>
-      )}
 
-      {isLoading && schedules.length > 0 && (
-        <div className="flex justify-center py-4">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      )}
+          {!isLoading && schedules.length === 0 && (
+            <EmptyState
+              icon={Calendar}
+              title="No schedules found"
+              description={
+                jobId || siteId || status || from || to
+                  ? "Try adjusting filters"
+                  : "Create your first schedule"
+              }
+              action={
+                !jobId && !siteId && !status && !from && !to
+                  ? { label: "Add Schedule", to: "/dashboard/schedules/new" }
+                  : undefined
+              }
+            />
+          )}
+
+          {!isLoading && schedules.length > 0 && totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-border pt-4">
+              <p className="font-mono text-xs text-muted-foreground">
+                {page}/{totalPages} · {total} total
+              </p>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1}>
+                  Previous
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page >= totalPages}>
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {isLoading && schedules.length > 0 && (
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          )}
         </>
       )}
     </div>

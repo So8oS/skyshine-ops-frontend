@@ -21,8 +21,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { JobTypeBadge } from "@/components/status-badge";
+import { StatusDot } from "@/components/status-dot";
 import { EmptyState } from "@/components/empty-state";
 import { SiteErrorFallback } from "@/components/site-error-fallback";
+import { cn } from "@/lib/utils";
 
 export type JobsSearch = {
   q?: string;
@@ -56,6 +58,10 @@ export const Route = createFileRoute("/dashboard/jobs/")({
     return null;
   },
 });
+
+function shortJobId(id: string): string {
+  return `JOB-${id.slice(0, 8).toUpperCase()}`;
+}
 
 function JobsPage() {
   const navigate = useNavigate({ from: "/dashboard/jobs/" });
@@ -113,8 +119,8 @@ function JobsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
         <div>
-            <h1 className="text-2xl font-bold tracking-tight">Jobs</h1>
-            <p className="text-muted-foreground">Track and manage your jobs</p>
+          <h1 className="text-2xl font-bold tracking-tight">Jobs</h1>
+          <p className="text-muted-foreground">Track and manage your jobs</p>
         </div>
         <Link to="/dashboard/jobs/new" className="w-full md:w-auto">
           <Button className="w-full md:w-auto">
@@ -124,19 +130,18 @@ function JobsPage() {
         </Link>
       </div>
 
+      {/* Filters */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4 flex-wrap">
-            <div className="flex-1 min-w-[200px]">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Search by job name..."
-                  value={q}
-                  onChange={(e) => setSearchParams({ q: e.target.value || undefined, page: 1 })}
-                  className="pl-10"
-                />
-              </div>
+        <CardContent className="pt-4 pb-4">
+          <div className="flex flex-col md:flex-row gap-3 flex-wrap">
+            <div className="flex-1 min-w-[200px] relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-3.5 h-3.5" />
+              <Input
+                placeholder="Search by job name..."
+                value={q}
+                onChange={(e) => setSearchParams({ q: e.target.value || undefined, page: 1 })}
+                className="pl-9 focus-visible:ring-primary/50"
+              />
             </div>
             <Select
               value={siteId || "all"}
@@ -150,9 +155,7 @@ function JobsPage() {
               <SelectContent>
                 <SelectItem value="all">All sites</SelectItem>
                 {sites.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.name}
-                  </SelectItem>
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -162,70 +165,64 @@ function JobsPage() {
                 setSearchParams({ type: v === "all" ? undefined : v, page: 1 })
               }
             >
-              <SelectTrigger className="w-full md:w-[160px]">
+              <SelectTrigger className="w-full md:w-[140px]">
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All types</SelectItem>
                 {(Object.keys(JOB_TYPE_LABELS) as JobType[]).map((k) => (
-                  <SelectItem key={k} value={k}>
-                    {JOB_TYPE_LABELS[k]}
-                  </SelectItem>
+                  <SelectItem key={k} value={k}>{JOB_TYPE_LABELS[k]}</SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={String(pageSize)}
-              onValueChange={(v) =>
-                setSearchParams({ pageSize: Number(v), page: 1 })
-              }
-            >
-              <SelectTrigger className="w-full md:w-[140px]">
-                <SelectValue placeholder="Per page" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10 per page</SelectItem>
-                <SelectItem value="20">20 per page</SelectItem>
-                <SelectItem value="50">50 per page</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {isLoading
-          ? Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i}>
-                <CardContent className="pt-6">
-                  <div className="h-20 animate-pulse rounded bg-muted" />
-                </CardContent>
-              </Card>
-            ))
-          : jobs.map((job) => (
-              <Link
-                key={job.id}
-                to="/dashboard/jobs/$jobId/edit"
-                params={{ jobId: job.id }}
-              >
-                <Card className="hover:shadow-lg transition-all hover:border-primary/50 cursor-pointer">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-medium line-clamp-1">{job.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {job.site?.name ?? job.siteId}
-                        </p>
-                        <span className="inline-block mt-2">
-                          <JobTypeBadge type={job.type} label={JOB_TYPE_LABELS[job.type]} />
-                        </span>
-                      </div>
-                      <Briefcase className="h-5 w-5 text-green-500 shrink-0" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+      {/* Dense list */}
+      <div className="rounded-[6px] border border-border overflow-hidden">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-16 animate-pulse bg-muted border-b border-border last:border-0" />
+          ))
+        ) : jobs.length === 0 ? null : (
+          jobs.map((job) => (
+            <Link
+              key={job.id}
+              to="/dashboard/jobs/$jobId/edit"
+              params={{ jobId: job.id }}
+              className={cn(
+                "relative flex items-center gap-4 px-4 h-16 group transition-colors",
+                "border-b border-border last:border-0",
+                "hover:bg-card/60",
+                "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary before:opacity-0 hover:before:opacity-100 before:transition-opacity"
+              )}
+            >
+              {/* Status dot + short ID */}
+              <div className="flex items-center gap-2 shrink-0 w-28">
+                <StatusDot variant="ok" />
+                <span className="font-mono text-[11px] text-muted-foreground tracking-wide">
+                  {shortJobId(job.id)}
+                </span>
+              </div>
+
+              {/* Job name + site */}
+              <div className="flex-1 min-w-0">
+                <p className="font-display font-semibold text-sm leading-tight truncate">
+                  {job.name}
+                </p>
+                <p className="font-mono text-[11px] text-muted-foreground truncate mt-0.5">
+                  {job.site?.name ?? job.siteId}
+                </p>
+              </div>
+
+              {/* Type badge */}
+              <div className="shrink-0 flex items-center">
+                <JobTypeBadge type={job.type} label={JOB_TYPE_LABELS[job.type as JobType] ?? job.type} />
+              </div>
+            </Link>
+          ))
+        )}
       </div>
 
       {!isLoading && jobs.length === 0 && (
@@ -242,25 +239,15 @@ function JobsPage() {
       )}
 
       {!isLoading && jobs.length > 0 && totalPages > 1 && (
-        <div className="flex items-center justify-between border-t pt-4">
-          <p className="text-sm text-muted-foreground">
-            Page {page} of {totalPages} ({total} total)
+        <div className="flex items-center justify-between border-t border-border pt-4">
+          <p className="font-mono text-xs text-muted-foreground">
+            {page}/{totalPages} · {total} total
           </p>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(Math.max(1, page - 1))}
-              disabled={page <= 1}
-            >
+            <Button variant="outline" size="sm" onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1}>
               Previous
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(Math.min(totalPages, page + 1))}
-              disabled={page >= totalPages}
-            >
+            <Button variant="outline" size="sm" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page >= totalPages}>
               Next
             </Button>
           </div>

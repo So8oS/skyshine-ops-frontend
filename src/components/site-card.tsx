@@ -1,5 +1,3 @@
-import { Card, CardContent, CardHeader } from "./ui/card";
-import { Building2, User, MapPin, Layers } from "lucide-react";
 import type { Site } from "@/actions/sites";
 import {
   ASSET_TYPE_LABELS,
@@ -8,78 +6,114 @@ import {
   type AccessConstraint,
 } from "@/actions/sites";
 import { cn } from "@/lib/utils";
+import { MapPin } from "lucide-react";
+import { StatusDot } from "./status-dot";
 
 interface SiteCardProps {
   site: Site;
-  variant?: "compact" | "detailed";
   className?: string;
   onClick?: () => void;
 }
 
+function specLine(site: Site): string | null {
+  const parts: string[] = [];
+  if (site.glassSurfaceType) {
+    const label = ASSET_TYPE_LABELS[site.glassSurfaceType as AssetType];
+    parts.push(label ?? site.glassSurfaceType);
+  }
+  if (site.estimatedTime != null) parts.push(`${site.estimatedTime} min`);
+  if (site.maxApprovedPressure != null) parts.push(`${site.maxApprovedPressure} PSI`);
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
+function formatUpdated(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+  }).toUpperCase();
+}
+
 export function SiteCard({ site, className, onClick }: SiteCardProps) {
-  const locationLine = [site.emirate, site.city].filter(Boolean).join(" · ") || "—";
+  const locationLine = [site.emirate, site.city].filter(Boolean).join(" · ") || null;
   const assetTypeLabel = site.assetType ? ASSET_TYPE_LABELS[site.assetType as AssetType] : null;
-  const constraints = (site.accessConstraints ?? []).slice(0, 3);
+  const constraints = site.accessConstraints ?? [];
+  const specs = specLine(site);
+  const updatedLabel = site.updatedAt ? formatUpdated(site.updatedAt) : null;
+
+  const allConstraintChips: string[] = [];
+  if (site.tetherRequired) allConstraintChips.push("Tether");
+  constraints.forEach((c) => {
+    allConstraintChips.push(ACCESS_CONSTRAINT_LABELS[c as AccessConstraint]);
+  });
 
   return (
-    <Card
+    <div
       onClick={onClick}
       className={cn(
-        "cursor-pointer border-border/50 transition-all group",
-        "hover:border-cyan-500/30 hover:bg-card/80",
+        "relative cursor-pointer rounded-[6px] border border-border bg-card p-4 flex flex-col gap-2",
+        "transition-all duration-150",
+        "hover:border-primary/40 hover:-translate-y-px hover:bg-card/90",
         className
       )}
     >
-      <CardHeader className="pb-3">
-        <div className="flex items-start gap-3">
-          <div className="p-2.5 rounded-lg bg-muted border border-border shrink-0 transition-colors group-hover:border-cyan-500/30 group-hover:bg-cyan-500/5">
-            <Building2 className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-cyan-400" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold text-sm leading-tight line-clamp-1">{site.name}</p>
-            {site.code && (
-              <p className="text-xs font-mono text-muted-foreground mt-0.5">{site.code}</p>
-            )}
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="pt-0 space-y-2">
-        {site.siteManager && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <User className="h-3 w-3 shrink-0" />
-            <span className="truncate">{site.siteManager}</span>
-          </div>
+      {/* Top row: status dot + code */}
+      <div className="flex items-center gap-2">
+        <StatusDot variant="ok" />
+        {site.code && (
+          <span className="font-mono text-[11px] text-muted-foreground tracking-wider">
+            {site.code}
+          </span>
         )}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      </div>
+
+      {/* Site name */}
+      <div>
+        <p className="font-display font-semibold text-base leading-tight">{site.name}</p>
+        {site.siteManager && (
+          <p className="text-xs text-muted-foreground mt-0.5">↳ {site.siteManager}</p>
+        )}
+      </div>
+
+      {/* Location */}
+      {locationLine && (
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <MapPin className="h-3 w-3 shrink-0" />
           <span>{locationLine}</span>
         </div>
-        {assetTypeLabel && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Layers className="h-3 w-3 shrink-0" />
-            <span>{assetTypeLabel}</span>
-          </div>
-        )}
+      )}
 
-        {(site.tetherRequired || constraints.length > 0) && (
-          <div className="pt-2 flex flex-wrap gap-1.5">
-            {site.tetherRequired && (
-              <span className="text-xs rounded border border-amber-500/20 bg-amber-500/8 text-amber-400 px-1.5 py-0.5">
-                Tether
-              </span>
-            )}
-            {constraints.map((c) => (
-              <span
-                key={c}
-                className="text-xs rounded border border-border bg-muted/50 text-muted-foreground px-1.5 py-0.5"
-              >
-                {ACCESS_CONSTRAINT_LABELS[c as AccessConstraint]}
-              </span>
-            ))}
-          </div>
+      {/* Asset type + specs */}
+      <div className="space-y-0.5">
+        {assetTypeLabel && (
+          <p className="text-xs text-muted-foreground">{assetTypeLabel}</p>
         )}
-      </CardContent>
-    </Card>
+        {specs && (
+          <p className="font-mono text-[11px] text-muted-foreground/80">{specs}</p>
+        )}
+      </div>
+
+      {/* Constraint chips */}
+      {allConstraintChips.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {allConstraintChips.map((chip) => (
+            <span
+              key={chip}
+              className="inline-flex items-center rounded-[3px] border border-primary/15 bg-primary/8 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-primary/90"
+            >
+              {chip}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Footer */}
+      {updatedLabel && (
+        <div className="mt-auto pt-2 border-t border-border/50">
+          <p className="font-mono text-[9px] text-muted-foreground/50 tracking-wider">
+            UPDATED {updatedLabel}
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
