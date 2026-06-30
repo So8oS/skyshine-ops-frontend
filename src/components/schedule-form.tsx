@@ -130,7 +130,7 @@ export function ScheduleForm({
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Schedule</CardTitle>
+          <CardTitle className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground font-normal">Schedule</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">

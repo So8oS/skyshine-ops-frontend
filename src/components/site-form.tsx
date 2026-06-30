@@ -81,7 +81,7 @@ export function SiteForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Site Information</CardTitle>
+          <CardTitle className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground font-normal">Site Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Name */}
@@ -214,7 +214,7 @@ export function SiteForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Asset Profile</CardTitle>
+          <CardTitle className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground font-normal">Asset Profile</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Asset Type */}

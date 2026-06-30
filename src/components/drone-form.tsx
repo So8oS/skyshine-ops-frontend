@@ -51,7 +51,7 @@ export function DroneForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Drone Information</CardTitle>
+          <CardTitle className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground font-normal">Drone Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">

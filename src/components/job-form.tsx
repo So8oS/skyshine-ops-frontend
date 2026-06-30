@@ -55,7 +55,7 @@ export function JobForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Job Information</CardTitle>
+          <CardTitle className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground font-normal">Job Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
