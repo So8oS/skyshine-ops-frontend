@@ -142,8 +142,6 @@ html {
 
 [data-sidebar="menu-button"][data-active="true"] {
   background: rgba(245, 165, 36, 0.08);
-  border-left: 2px solid #F5A524;
-  padding-left: calc(0.5rem - 2px);
   color: #F5A524 !important;
   font-weight: 600;
 }

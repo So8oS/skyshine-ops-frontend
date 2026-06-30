@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { MOTION } from "@/lib/motion";
 
 import {
   Sidebar,
@@ -100,6 +102,8 @@ export function AppSidebar() {
   const router = useRouterState();
   const currentPath = router.location.pathname;
 
+  const reducedMotion = useReducedMotion();
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -133,20 +137,33 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={currentPath.startsWith(item.url)}
-                    tooltip={item.title}
-                  >
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navItems.map((item) => {
+                const isActive = currentPath.startsWith(item.url);
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    {isActive && (
+                      <motion.div
+                        layoutId="sidebar-active-indicator"
+                        className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary rounded-r-[2px]"
+                        transition={{
+                          duration: reducedMotion ? 0.01 : MOTION.duration.base,
+                          ease: MOTION.ease.inOut,
+                        }}
+                      />
+                    )}
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.title}
+                    >
+                      <Link to={item.url}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
