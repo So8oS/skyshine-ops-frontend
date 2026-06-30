@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FileText, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { UASFleetAssetForm } from "@/components/forms/UASFleetAssetForm";
 import { UAVRemotePilotCard } from "@/components/forms/UAVRemotePilotCard";
 import { StatementOfPurpose } from "@/components/forms/StatementOfPurpose";
@@ -52,9 +52,6 @@ function FormPage() {
         <Link to="/dashboard/forms" className="p-2 rounded-lg hover:bg-accent transition-colors">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <div className="p-2 rounded-lg bg-cyan-500/10">
-          <FileText className="h-6 w-6 text-cyan-500" />
-        </div>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{form.name}</h1>
           <p className="text-muted-foreground">{form.description}</p>

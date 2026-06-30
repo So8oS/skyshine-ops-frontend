@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import {
   Select,
   SelectContent,
@@ -110,14 +110,13 @@ export function DroneForm({
             />
           </div>
         </CardContent>
+        <CardFooter className="border-t px-6 py-4">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+            {submitLabel}
+          </Button>
+        </CardFooter>
       </Card>
-
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-          {submitLabel}
-        </Button>
-      </div>
     </form>
   );
 }

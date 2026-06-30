@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import {
   type LoginData,
   LoginInput,
@@ -9,13 +10,15 @@ import {
   useLogin,
   useRegister,
 } from "../actions/auth";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 export function AuthForm({ initialIsLogin = true }: { initialIsLogin?: boolean }) {
   const [isLogin, setIsLogin] = useState(initialIsLogin);
-  
+
   const loginMutation = useLogin();
   const registerMutation = useRegister();
-
   const isPending = loginMutation.isPending || registerMutation.isPending;
 
   const {
@@ -43,87 +46,108 @@ export function AuthForm({ initialIsLogin = true }: { initialIsLogin?: boolean }
   };
 
   return (
-    <div className="max-w-[420px] mx-auto p-10 rounded-xl shadow-2xl bg-white border border-gray-100 mt-8">
-      <div className="flex justify-center mb-6">
-        <img src="/skyshinelogonobg.png" alt="Skyshine" className="h-10 w-auto object-contain" />
+    <div className="w-full max-w-sm">
+      {/* Logo */}
+      <div className="flex justify-center mb-8">
+        <img
+          src="/skyshinelogonobgwhite.png"
+          alt="Skyshine"
+          className="h-10 w-auto object-contain"
+        />
       </div>
-      <h2 className="text-center text-2xl font-bold mb-6 text-gray-800">
-        {isLogin ? "Sign In" : "Create Account"}
-      </h2>
-      
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-        {!isLogin && (
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-gray-600">Full Name</label>
-            <input
-              {...register("name")}
-              placeholder="e.g. John Doe"
-              className="p-3 rounded-md border border-gray-300 text-base outline-none focus:border-blue-500 transition-colors"
-            />
-            {errors.name && (
-              <span className="text-red-500 text-xs mt-1">{errors.name.message as string}</span>
-            )}
-          </div>
-        )}
 
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-semibold text-gray-600">Email Address</label>
-          <input
-            {...register("email")}
-            type="email"
-            placeholder="name@company.com"
-            className="p-3 rounded-md border border-gray-300 text-base outline-none focus:border-blue-500 transition-colors"
-          />
-          {errors.email && (
-            <span className="text-red-500 text-xs mt-1">{errors.email.message as string}</span>
-          )}
+      {/* Card */}
+      <div className="rounded-xl border border-border bg-card p-8 shadow-2xl shadow-black/40">
+        <div className="mb-6">
+          <h1 className="text-xl font-semibold tracking-tight">
+            {isLogin ? "Sign in" : "Create account"}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isLogin
+              ? "Enter your credentials to access Operations Center"
+              : "Fill in the details below to create your account"}
+          </p>
         </div>
 
-        {!isLogin && (
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-gray-600">Phone Number</label>
-            <input
-              {...register("phone")}
-              placeholder="+1 (555) 000-0000"
-              className="p-3 rounded-md border border-gray-300 text-base outline-none focus:border-blue-500 transition-colors"
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {!isLogin && (
+            <div className="space-y-1.5">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                {...register("name")}
+                placeholder="John Doe"
+                disabled={isPending}
+              />
+              {errors.name && (
+                <p className="text-xs text-destructive">{errors.name.message as string}</p>
+              )}
+            </div>
+          )}
+
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              {...register("email")}
+              placeholder="name@company.com"
+              disabled={isPending}
             />
-            {errors.phone && (
-              <span className="text-red-500 text-xs mt-1">{errors.phone.message as string}</span>
+            {errors.email && (
+              <p className="text-xs text-destructive">{errors.email.message as string}</p>
             )}
           </div>
-        )}
 
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-semibold text-gray-600">Password</label>
-          <input
-            {...register("password")}
-            type="password"
-            placeholder="••••••••"
-            className="p-3 rounded-md border border-gray-300 text-base outline-none focus:border-blue-500 transition-colors"
-          />
-          {errors.password && (
-            <span className="text-red-500 text-xs mt-1">{errors.password.message as string}</span>
+          {!isLogin && (
+            <div className="space-y-1.5">
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                {...register("phone")}
+                placeholder="+1 (555) 000-0000"
+                disabled={isPending}
+              />
+              {errors.phone && (
+                <p className="text-xs text-destructive">{errors.phone.message as string}</p>
+              )}
+            </div>
           )}
-        </div>
 
-        <button
-          type="submit"
-          disabled={isPending}
-          className="mt-2 p-3 rounded-md bg-black text-white text-lg font-bold cursor-pointer hover:bg-gray-800 transition-colors disabled:opacity-70"
-        >
-          {isPending ? "Please wait..." : isLogin ? "Sign In" : "Register"}
-        </button>
-      </form>
+          <div className="space-y-1.5">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              {...register("password")}
+              placeholder="••••••••"
+              disabled={isPending}
+            />
+            {errors.password && (
+              <p className="text-xs text-destructive">{errors.password.message as string}</p>
+            )}
+          </div>
 
-      <p className="text-center mt-6 text-sm text-gray-500">
-        {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-        <button
-          type="button"
-          onClick={toggleMode}
-          className="bg-none border-none text-blue-600 cursor-pointer font-bold hover:underline p-0"
-        >
-          {isLogin ? "Create an account" : "Sign in instead"}
-        </button>
+          <Button type="submit" className="w-full mt-2" disabled={isPending}>
+            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isPending ? "Please wait…" : isLogin ? "Sign In" : "Create Account"}
+          </Button>
+        </form>
+
+        <p className="text-center mt-5 text-sm text-muted-foreground">
+          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+          <button
+            type="button"
+            onClick={toggleMode}
+            className="text-primary font-medium hover:underline underline-offset-4"
+          >
+            {isLogin ? "Create an account" : "Sign in"}
+          </button>
+        </p>
+      </div>
+
+      <p className="text-center mt-6 text-xs text-muted-foreground/50">
+        Skyshine Operations Center
       </p>
     </div>
   );

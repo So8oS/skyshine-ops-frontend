@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { StatsCard } from "@/components/stats-card";
+import { DroneStatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { SiteErrorFallback } from "@/components/site-error-fallback";
 
@@ -114,14 +114,9 @@ function DronesPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-orange-500/10">
-            <Plane className="h-6 w-6 text-orange-500" />
-          </div>
-          <div>
+        <div>
             <h1 className="text-2xl font-bold tracking-tight">Drones</h1>
             <p className="text-muted-foreground">Manage your drone fleet</p>
-          </div>
         </div>
         <Link to="/dashboard/drones/new" className="w-full md:w-auto">
           <Button className="w-full md:w-auto">
@@ -129,16 +124,6 @@ function DronesPage() {
             Add Drone
           </Button>
         </Link>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <StatsCard
-          title="Total Drones"
-          value={total}
-          icon={Plane}
-          iconColor="text-orange-500"
-          isLoading={isLoading}
-        />
       </div>
 
       <Card>
@@ -230,9 +215,10 @@ function DronesPage() {
                       {d.serialNumber}
                     </TableCell>
                     <TableCell>
-                      <span className="inline-flex rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
-                        {DRONE_STATUS_LABELS[d.status]}
-                      </span>
+                      <DroneStatusBadge
+                        status={d.status}
+                        label={DRONE_STATUS_LABELS[d.status]}
+                      />
                     </TableCell>
                     <TableCell className="text-right">
                       <Link

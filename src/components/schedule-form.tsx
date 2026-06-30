@@ -2,7 +2,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import {
   Select,
   SelectContent,
@@ -210,7 +210,7 @@ export function ScheduleForm({
           {hasAvailabilityRange &&
             !availabilityLoading &&
             (noPilotsAvailable || noDronesAvailable) && (
-              <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+              <div className="text-sm text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-md px-3 py-2">
                 {noPilotsAvailable && noDronesAvailable
                   ? "No pilots or drones are available for this time range. Try another date/time."
                   : noPilotsAvailable
@@ -333,14 +333,13 @@ export function ScheduleForm({
             />
           </div>
         </CardContent>
+        <CardFooter className="border-t px-6 py-4">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+            {submitLabel}
+          </Button>
+        </CardFooter>
       </Card>
-
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-          {submitLabel}
-        </Button>
-      </div>
     </form>
   );
 }

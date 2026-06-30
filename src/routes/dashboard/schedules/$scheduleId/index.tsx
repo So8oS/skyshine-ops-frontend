@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Calendar, ArrowLeft, Pencil, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Loader2 } from "lucide-react";
 import {
   useSchedule,
   useDeleteSchedule,
@@ -65,11 +65,7 @@ function ScheduleDetailsPage() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-purple-500/10">
-              <Calendar className="h-6 w-6 text-purple-500" />
-            </div>
-            <div>
+          <div>
               {isLoading ? (
                 <>
                   <Skeleton className="h-8 w-48 mb-1" />
@@ -85,7 +81,6 @@ function ScheduleDetailsPage() {
                   </p>
                 </>
               )}
-            </div>
           </div>
         </div>
         <div className="flex gap-2">

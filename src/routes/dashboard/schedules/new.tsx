@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Calendar, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { AddScheduleForm } from "@/components/add-schedule-form";
 import {
   useCreateSchedule,
@@ -38,18 +38,11 @@ function NewSchedulePage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-purple-500/10">
-            <Calendar className="h-6 w-6 text-purple-500" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              Add Schedule
-            </h1>
+        <div>
+            <h1 className="text-2xl font-bold tracking-tight">Add Schedule</h1>
             <p className="text-muted-foreground">
               Create a new schedule (pick time range to see available pilots & drones)
             </p>
-          </div>
         </div>
       </div>
 

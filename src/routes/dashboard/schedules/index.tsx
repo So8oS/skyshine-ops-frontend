@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { StatsCard } from "@/components/stats-card";
+import { ScheduleStatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { SiteErrorFallback } from "@/components/site-error-fallback";
 import { ScheduleCalendar } from "@/features/calendar/schedule-calendar";
@@ -172,14 +172,9 @@ function SchedulesPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-purple-500/10">
-            <Calendar className="h-6 w-6 text-purple-500" />
-          </div>
-          <div>
+        <div>
             <h1 className="text-2xl font-bold tracking-tight">Schedules</h1>
             <p className="text-muted-foreground">Plan and manage schedules</p>
-          </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <div className="flex rounded-lg border bg-muted/30 p-0.5">
@@ -210,18 +205,6 @@ function SchedulesPage() {
           </Link>
         </div>
       </div>
-
-      {!isCalendarView && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <StatsCard
-            title="Total Schedules"
-            value={total}
-            icon={Calendar}
-            iconColor="text-purple-500"
-            isLoading={isLoading}
-          />
-        </div>
-      )}
 
       {isCalendarView ? (
         <ScheduleCalendar
@@ -376,9 +359,10 @@ function SchedulesPage() {
                       </Link>
                     </TableCell>
                     <TableCell>
-                      <span className="inline-flex rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
-                        {SCHEDULE_STATUS_LABELS[s.status]}
-                      </span>
+                      <ScheduleStatusBadge
+                        status={s.status}
+                        label={SCHEDULE_STATUS_LABELS[s.status] ?? s.status}
+                      />
                     </TableCell>
                     <TableCell>
                       {s.pilot?.name ?? s.pilotId}

@@ -6,6 +6,7 @@ import {
   LogOut,
   Plane,
   Settings,
+  Palette,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 
@@ -26,31 +27,11 @@ import {
 import { useLogout, useUser } from "@/actions/auth";
 
 const navItems = [
-  {
-    title: "Sites",
-    url: "/dashboard/sites",
-    icon: Building2,
-  },
-  {
-    title: "Jobs",
-    url: "/dashboard/jobs",
-    icon: Briefcase,
-  },
-  {
-    title: "Schedules",
-    url: "/dashboard/schedules",
-    icon: Calendar,
-  },
-  {
-    title: "Drones",
-    url: "/dashboard/drones",
-    icon: Plane,
-  },
-  {
-    title: "Forms",
-    url: "/dashboard/forms",
-    icon: FileText,
-  },
+  { title: "Sites",     url: "/dashboard/sites",     icon: Building2 },
+  { title: "Jobs",      url: "/dashboard/jobs",      icon: Briefcase },
+  { title: "Schedules", url: "/dashboard/schedules", icon: Calendar  },
+  { title: "Drones",    url: "/dashboard/drones",    icon: Plane     },
+  { title: "Forms",     url: "/dashboard/forms",     icon: FileText  },
 ];
 
 export function AppSidebar() {
@@ -66,12 +47,16 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link to="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-xl bg-sidebar-primary p-1.5 shadow-sm">
-                  <img src="/skyshinelogonobgwhite.png" alt="Skyshine" className="size-full object-contain" />
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-cyan-500/10 border border-cyan-500/20 p-1">
+                  <img
+                    src="/skyshinelogonobgwhite.png"
+                    alt="Skyshine"
+                    className="size-full object-contain"
+                  />
                 </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Skyshine Ops</span>
-                  <span className="text-xs text-muted-foreground">Dashboard</span>
+                <div className="flex flex-col gap-0 leading-none">
+                  <span className="font-semibold text-foreground">Skyshine Ops</span>
+                  <span className="text-[11px] text-muted-foreground">Operations Center</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -81,7 +66,7 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/60">
+          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-widest">
             Navigation
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -94,7 +79,7 @@ export function AppSidebar() {
                     tooltip={item.title}
                   >
                     <Link to={item.url}>
-                      <item.icon />
+                      <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -110,9 +95,21 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              tooltip="Design System"
+              isActive={currentPath.startsWith("/dashboard/ui")}
+            >
+              <Link to="/dashboard/ui">
+                <Palette className="h-4 w-4" />
+                <span>Design System</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Settings">
               <Link to="/dashboard/settings">
-                <Settings />
+                <Settings className="h-4 w-4" />
                 <span>Settings</span>
               </Link>
             </SidebarMenuButton>
@@ -122,9 +119,10 @@ export function AppSidebar() {
               onClick={() => logout.mutate()}
               disabled={logout.isPending}
               tooltip="Logout"
+              className="text-muted-foreground hover:text-foreground"
             >
-              <LogOut />
-              <span>{logout.isPending ? "Logging out..." : user?.name || "Logout"}</span>
+              <LogOut className="h-4 w-4" />
+              <span>{logout.isPending ? "Logging out…" : (user?.name ?? "Logout")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

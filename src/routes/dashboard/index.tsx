@@ -13,6 +13,7 @@ import {
 } from "@/actions/schedules";
 import { useJobs, JOB_TYPE_LABELS, type JobType } from "@/actions/jobs";
 import { StatsCard } from "@/components/stats-card";
+import { ScheduleStatusBadge, JobTypeBadge } from "@/components/status-badge";
 import {
   Building2,
   Briefcase,
@@ -58,21 +59,21 @@ export const Route = createFileRoute("/dashboard/")({
 /* ---------- Chart configs ---------- */
 
 const scheduleStatusConfig = {
-  ASSIGNED: { label: "Assigned", color: "#6366f1" },
-  IN_PROGRESS: { label: "In Progress", color: "#3b82f6" },
-  COMPLETED: { label: "Completed", color: "#64748b" },
-  CANCELLED: { label: "Cancelled", color: "#a78bfa" },
+  ASSIGNED:    { label: "Assigned",    color: "#22D3EE" },
+  IN_PROGRESS: { label: "In Progress", color: "#818CF8" },
+  COMPLETED:   { label: "Completed",   color: "#34D399" },
+  CANCELLED:   { label: "Cancelled",   color: "#475569" },
 } satisfies ChartConfig;
 
 const droneStatusConfig = {
-  AVAILABLE: { label: "Available", color: "#3b82f6" },
-  MAINTENANCE: { label: "Maintenance", color: "#8b5cf6" },
-  OUT_OF_SERVICE: { label: "Out of Service", color: "#475569" },
+  AVAILABLE:      { label: "Available",      color: "#34D399" },
+  MAINTENANCE:    { label: "Maintenance",    color: "#FBBF24" },
+  OUT_OF_SERVICE: { label: "Out of Service", color: "#F87171" },
 } satisfies ChartConfig;
 
 const jobTypeConfig = {
-  INSPECTION: { label: "Inspection", color: "#6366f1" },
-  CLEANING: { label: "Cleaning", color: "#94a3b8" },
+  INSPECTION: { label: "Inspection", color: "#818CF8" },
+  CLEANING:   { label: "Cleaning",   color: "#22D3EE" },
 } satisfies ChartConfig;
 
 /* ---------- Quick actions ---------- */
@@ -417,9 +418,10 @@ function DashboardIndex() {
                         </Link>
                       </TableCell>
                       <TableCell>
-                        <span className="inline-flex rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
-                          {SCHEDULE_STATUS_LABELS[s.status as ScheduleStatus] ?? s.status}
-                        </span>
+                        <ScheduleStatusBadge
+                          status={s.status}
+                          label={SCHEDULE_STATUS_LABELS[s.status as ScheduleStatus] ?? s.status}
+                        />
                       </TableCell>
                       <TableCell className="truncate max-w-[100px]">
                         {s.pilot?.name ?? "—"}
@@ -483,9 +485,10 @@ function DashboardIndex() {
                         {j.site?.name ?? j.siteId}
                       </TableCell>
                       <TableCell>
-                        <span className="inline-flex rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
-                          {JOB_TYPE_LABELS[j.type as JobType] ?? j.type}
-                        </span>
+                        <JobTypeBadge
+                          type={j.type}
+                          label={JOB_TYPE_LABELS[j.type as JobType] ?? j.type}
+                        />
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {formatShortDate(j.createdAt)}

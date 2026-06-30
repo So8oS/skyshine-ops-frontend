@@ -4,14 +4,12 @@ import { Building2, Plus, Loader2 } from "lucide-react";
 import { useState, useMemo, useCallback } from "react";
 import {
   useSites,
-  useSiteCount,
   sitesApi,
   siteKeys,
   type SiteListParams,
   type Site,
 } from "@/actions/sites";
 import { SiteCardSkeleton } from "@/components/site-skeletons";
-import { StatsCard } from "@/components/stats-card";
 import { SiteFilters } from "@/components/site-filters";
 import { SiteCard } from "@/components/site-card";
 import { EmptyState } from "@/components/empty-state";
@@ -79,10 +77,8 @@ function SitesPage() {
   );
 
   const { data, isLoading, error } = useSites(params);
-  const { data: countData, isLoading: isCountLoading } = useSiteCount();
 
   const sites = data?.items ?? [];
-  const totalSites = countData?.siteCount ?? data?.total ?? 0;
   const totalPages = data?.totalPages ?? 1;
 
   const setSearchParams = useCallback(
@@ -145,16 +141,9 @@ function SitesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-blue-500/10">
-            <Building2 className="h-6 w-6 text-blue-500" />
-          </div>
-          <div>
+        <div>
             <h1 className="text-2xl font-bold tracking-tight">Sites</h1>
-            <p className="text-muted-foreground">
-              Manage your operation sites
-            </p>
-          </div>
+            <p className="text-muted-foreground">Manage your operation sites</p>
         </div>
         <Link to="/dashboard/sites/new" className="w-full md:w-auto">
           <Button className="w-full md:w-auto">
@@ -162,18 +151,6 @@ function SitesPage() {
             Add Site
           </Button>
         </Link>
-      </div>
-
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <StatsCard
-          title="Total Sites"
-          value={totalSites}
-          icon={Building2}
-          iconColor="text-blue-500"
-          isLoading={isCountLoading}
-        />
-    
       </div>
 
       {/* Filters */}

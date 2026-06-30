@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Calendar, ArrowLeft, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
 import { ScheduleForm } from "@/components/schedule-form";
 import {
   useSchedule,
@@ -45,20 +45,14 @@ function EditSchedulePage() {
   const { data: schedule, isLoading, error } = useSchedule(scheduleId);
 
   const updateSchedule = useUpdateSchedule({
-    onSuccess: () => {
-      navigate({ to: "/dashboard/schedules" });
-    },
+    onSuccess: () => navigate({ to: "/dashboard/schedules" }),
     onConflict: (err: ScheduleApiError, conflict) => {
-      if (conflict) {
-        console.warn("Conflict:", err.response?.data?.error, conflict);
-      }
+      if (conflict) console.warn("Conflict:", err.response?.data?.error, conflict);
     },
   });
 
   const deleteSchedule = useDeleteSchedule({
-    onSuccess: () => {
-      navigate({ to: "/dashboard/schedules" });
-    },
+    onSuccess: () => navigate({ to: "/dashboard/schedules" }),
   });
 
   const handleSubmit = (data: CreateScheduleRequest) => {
@@ -72,109 +66,96 @@ function EditSchedulePage() {
     updateSchedule.mutate({ id: scheduleId, data: updateData });
   };
 
-  const handleDelete = () => {
-    deleteSchedule.mutate(scheduleId);
-  };
-
-  if (error) {
-    return (
-      <SiteErrorFallback error={error} title="Failed to load schedule" />
-    );
-  }
+  if (error) return <SiteErrorFallback error={error} title="Failed to load schedule" />;
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between">
-        <div className="flex items-center gap-4">
-          <Link to="/dashboard/schedules">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-purple-500/10">
-              <Calendar className="h-6 w-6 text-purple-500" />
-            </div>
-            <div>
-              {isLoading ? (
-                <>
-                  <Skeleton className="h-8 w-56 mb-1" />
-                  <Skeleton className="h-4 w-40" />
-                </>
-              ) : (
-                <>
-                  <h1 className="text-2xl font-bold tracking-tight">
-                    Edit Schedule
-                  </h1>
-                  <p className="text-muted-foreground">
-                    {schedule?.job?.name ?? schedule?.jobId} ·{" "}
-                    {schedule?.pilot?.name ?? schedule?.pilotId}
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
+    <div className="max-w-2xl space-y-8">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon-sm" asChild>
+          <Link to="/dashboard/schedules"><ArrowLeft className="h-4 w-4" /></Link>
+        </Button>
+        <div>
+            {isLoading ? (
+              <>
+                <Skeleton className="h-6 w-48 mb-1" />
+                <Skeleton className="h-4 w-28" />
+              </>
+            ) : (
+              <>
+                <h1 className="text-xl font-bold tracking-tight">Edit Schedule</h1>
+                <p className="text-sm text-muted-foreground">
+                  {schedule?.job?.name ?? "—"} · {schedule?.pilot?.name ?? "—"}
+                </p>
+              </>
+            )}
         </div>
-
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="destructive"
-              disabled={isLoading || deleteSchedule.isPending}
-            >
-              {deleteSchedule.isPending ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
-              )}
-              Delete Schedule
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Schedule</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete this schedule? This action cannot
-                be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDelete}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
 
-      <div className="max-w-2xl">
-        {isLoading ? (
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-6 w-32" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="space-y-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        ) : schedule ? (
-          <ScheduleForm
-            initialData={schedule}
-            onSubmit={handleSubmit}
-            isSubmitting={updateSchedule.isPending}
-            submitLabel="Update Schedule"
-            isEdit
-          />
-        ) : null}
+      {/* Form */}
+      {isLoading ? (
+        <Card>
+          <CardHeader><Skeleton className="h-5 w-32" /></CardHeader>
+          <CardContent className="space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-9 w-full" />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : schedule ? (
+        <ScheduleForm
+          initialData={schedule}
+          onSubmit={handleSubmit}
+          isSubmitting={updateSchedule.isPending}
+          submitLabel="Save Changes"
+          isEdit
+        />
+      ) : null}
+
+      {/* Danger zone */}
+      <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium">Delete this schedule</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              This action is permanent and cannot be undone.
+            </p>
+          </div>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={isLoading || deleteSchedule.isPending}
+              >
+                {deleteSchedule.isPending
+                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : <Trash2 className="h-4 w-4" />}
+                Delete Schedule
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Schedule</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this schedule? This cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => deleteSchedule.mutate(scheduleId)}
+                  className="bg-destructive text-white hover:bg-destructive/85"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
     </div>
   );

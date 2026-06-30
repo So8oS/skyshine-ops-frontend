@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plane, ArrowLeft, Pencil, Calendar } from "lucide-react";
+import { ArrowLeft, Pencil, Calendar } from "lucide-react";
 import {
   useDrone,
   dronesApi,
@@ -61,11 +61,7 @@ function DroneDetailsPage() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-orange-500/10">
-              <Plane className="h-6 w-6 text-orange-500" />
-            </div>
-            <div>
+          <div>
               {isLoading ? (
                 <>
                   <Skeleton className="h-8 w-48 mb-1" />
@@ -86,7 +82,6 @@ function DroneDetailsPage() {
                   </p>
                 </>
               )}
-            </div>
           </div>
         </div>
         {drone && (

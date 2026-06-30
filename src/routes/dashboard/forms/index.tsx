@@ -27,14 +27,9 @@ const forms = [
 function FormsPage() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-cyan-500/10">
-          <FileText className="h-6 w-6 text-cyan-500" />
-        </div>
-        <div>
+      <div>
           <h1 className="text-2xl font-bold tracking-tight">Forms</h1>
           <p className="text-muted-foreground">Create and manage forms</p>
-        </div>
       </div>
 
       <div className="grid gap-4">

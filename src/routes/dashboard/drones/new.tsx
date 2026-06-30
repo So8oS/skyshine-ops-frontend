@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Plane, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { DroneForm } from "@/components/drone-form";
 import { useCreateDrone, type CreateDroneRequest } from "@/actions/drones";
 
@@ -28,14 +28,9 @@ function NewDronePage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-orange-500/10">
-            <Plane className="h-6 w-6 text-orange-500" />
-          </div>
-          <div>
+        <div>
             <h1 className="text-2xl font-bold tracking-tight">Add New Drone</h1>
             <p className="text-muted-foreground">Register a new drone</p>
-          </div>
         </div>
       </div>
 

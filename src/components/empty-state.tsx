@@ -1,5 +1,4 @@
 import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
 import { Plus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import React from "react";
@@ -14,43 +13,33 @@ interface EmptyStateProps {
     search?: any;
     onClick?: () => void;
   };
-  className?: string;
 }
 
-export function EmptyState({
-  icon: Icon,
-  title,
-  description,
-  action,
-  className = "bg-white/80 backdrop-blur-sm",
-}: EmptyStateProps) {
+export function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
   return (
-    <Card className={className}>
-      <CardContent className="text-center py-12">
-        <Icon className="w-16 h-16 text-retro-brown/30 mx-auto mb-4" />
-        <h3 className="retro-font text-xl text-retro-brown mb-2">{title}</h3>
-        <p className="text-retro-brown/60 mb-6">{description}</p>
-        {action && (
-          <>
-            {action.to ? (
-              <Link to={action.to} search={action.search}>
-                <Button className="retro-button text-white font-bold">
-                  <Plus className="w-4 h-4 mr-2" />
-                  {action.label}
-                </Button>
-              </Link>
-            ) : (
-              <Button
-                onClick={action.onClick}
-                className="retro-button text-white font-bold"
-              >
-                <Plus className="w-4 h-4 mr-2" />
+    <div className="flex flex-col items-center justify-center py-20 px-6 rounded-lg border border-dashed border-border text-center">
+      <div className="p-4 rounded-full bg-muted/50 mb-4">
+        <Icon className="w-8 h-8 text-muted-foreground" />
+      </div>
+      <h3 className="text-base font-semibold text-foreground mb-1">{title}</h3>
+      <p className="text-sm text-muted-foreground mb-6 max-w-xs">{description}</p>
+      {action && (
+        <>
+          {action.to ? (
+            <Link to={action.to} search={action.search}>
+              <Button size="sm">
+                <Plus className="w-4 h-4 mr-1.5" />
                 {action.label}
               </Button>
-            )}
-          </>
-        )}
-      </CardContent>
-    </Card>
+            </Link>
+          ) : (
+            <Button size="sm" onClick={action.onClick}>
+              <Plus className="w-4 h-4 mr-1.5" />
+              {action.label}
+            </Button>
+          )}
+        </>
+      )}
+    </div>
   );
 }

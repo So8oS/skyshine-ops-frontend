@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { StatsCard } from "@/components/stats-card";
+import { JobTypeBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import { SiteErrorFallback } from "@/components/site-error-fallback";
 
@@ -112,14 +112,9 @@ function JobsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-green-500/10">
-            <Briefcase className="h-6 w-6 text-green-500" />
-          </div>
-          <div>
+        <div>
             <h1 className="text-2xl font-bold tracking-tight">Jobs</h1>
             <p className="text-muted-foreground">Track and manage your jobs</p>
-          </div>
         </div>
         <Link to="/dashboard/jobs/new" className="w-full md:w-auto">
           <Button className="w-full md:w-auto">
@@ -127,16 +122,6 @@ function JobsPage() {
             Add Job
           </Button>
         </Link>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <StatsCard
-          title="Total Jobs"
-          value={total}
-          icon={Briefcase}
-          iconColor="text-green-500"
-          isLoading={isLoading}
-        />
       </div>
 
       <Card>
@@ -231,8 +216,8 @@ function JobsPage() {
                         <p className="text-sm text-muted-foreground">
                           {job.site?.name ?? job.siteId}
                         </p>
-                        <span className="inline-block mt-2 text-xs rounded-md bg-muted px-2 py-0.5">
-                          {JOB_TYPE_LABELS[job.type]}
+                        <span className="inline-block mt-2">
+                          <JobTypeBadge type={job.type} label={JOB_TYPE_LABELS[job.type]} />
                         </span>
                       </div>
                       <Briefcase className="h-5 w-5 text-green-500 shrink-0" />
