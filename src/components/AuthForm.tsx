@@ -13,6 +13,7 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { triggerBootSplash } from "./boot-splash";
 
 export function AuthForm({ initialIsLogin = true }: { initialIsLogin?: boolean }) {
   const [isLogin, setIsLogin] = useState(initialIsLogin);
@@ -32,9 +33,9 @@ export function AuthForm({ initialIsLogin = true }: { initialIsLogin?: boolean }
 
   const onSubmit = (data: LoginData | RegisterData) => {
     if (isLogin) {
-      loginMutation.mutate(data as LoginData);
+      loginMutation.mutate(data as LoginData, { onSuccess: triggerBootSplash });
     } else {
-      registerMutation.mutate(data as RegisterData);
+      registerMutation.mutate(data as RegisterData, { onSuccess: triggerBootSplash });
     }
   };
 
