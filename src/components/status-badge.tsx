@@ -1,40 +1,60 @@
 import { cn } from "@/lib/utils";
 
-function Badge({ label, className }: { label: string; className: string }) {
+function Badge({
+  label,
+  className,
+  pulse,
+}: {
+  label: string;
+  className: string;
+  pulse?: boolean;
+}) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded border px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1 px-1.5 py-0.5 text-mono text-[10px] uppercase tracking-widest border rounded-[3px]",
         className
       )}
     >
+      {pulse && (
+        <span className="relative flex h-1.5 w-1.5 shrink-0">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 bg-current" />
+          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-current" />
+        </span>
+      )}
       {label}
     </span>
   );
 }
 
 const scheduleStatusClass: Record<string, string> = {
-  ASSIGNED:    "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-  IN_PROGRESS: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  COMPLETED:   "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  CANCELLED:   "bg-slate-500/10 text-slate-400 border-slate-500/20",
+  ASSIGNED:    "bg-primary/10 text-primary border-primary/30",
+  IN_PROGRESS: "bg-teal/10 text-teal border-teal/30",
+  COMPLETED:   "bg-success/10 text-success border-success/30",
+  CANCELLED:   "bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20",
 };
 
 const droneStatusClass: Record<string, string> = {
-  AVAILABLE:      "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  MAINTENANCE:    "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  OUT_OF_SERVICE: "bg-red-500/10 text-red-400 border-red-500/20",
+  AVAILABLE:      "bg-success/10 text-success border-success/30",
+  MAINTENANCE:    "bg-warning/10 text-warning border-warning/30",
+  OUT_OF_SERVICE: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
 const jobTypeClass: Record<string, string> = {
-  INSPECTION: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
-  CLEANING:   "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+  INSPECTION: "bg-[#A78BFA]/10 text-[#A78BFA] border-[#A78BFA]/30",
+  CLEANING:   "bg-teal/10 text-teal border-teal/30",
 };
 
-const fallbackClass = "bg-slate-500/10 text-slate-400 border-slate-500/20";
+const fallbackClass = "bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20";
 
 export function ScheduleStatusBadge({ status, label }: { status: string; label: string }) {
-  return <Badge label={label} className={scheduleStatusClass[status] ?? fallbackClass} />;
+  return (
+    <Badge
+      label={label}
+      className={scheduleStatusClass[status] ?? fallbackClass}
+      pulse={status === "IN_PROGRESS"}
+    />
+  );
 }
 
 export function DroneStatusBadge({ status, label }: { status: string; label: string }) {
