@@ -314,7 +314,7 @@ function SchedulesPage() {
                     to="/dashboard/schedules/$scheduleId"
                     params={{ scheduleId: s.id }}
                     className={cn(
-                      "relative flex items-stretch border-b border-border last:border-0 transition-colors",
+                      "relative flex items-stretch border-b border-border last:border-0 transition-colors overflow-hidden",
                       "hover:bg-card/60",
                       "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary before:opacity-0 hover:before:opacity-100 before:transition-opacity"
                     )}
@@ -348,6 +348,13 @@ function SchedulesPage() {
                       </div>
                       <ScheduleStatusBadge status={s.status} label={statusLabel} />
                     </div>
+                    {s.status === "IN_PROGRESS" && (() => {
+                      const pct = Math.min(100, Math.max(0,
+                        (Date.now() - new Date(s.startAt).getTime()) /
+                        (new Date(s.endAt).getTime() - new Date(s.startAt).getTime()) * 100
+                      ));
+                      return <div className="absolute bottom-0 left-0 h-px bg-primary" style={{ width: `${pct}%` }} />;
+                    })()}
                   </Link>
                 );
               })

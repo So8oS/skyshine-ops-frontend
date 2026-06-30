@@ -75,15 +75,23 @@ export function LiveOpsFeed() {
         const droneName = s.drone?.name ?? "—";
         const label = SCHEDULE_STATUS_LABELS[s.status as ScheduleStatus] ?? s.status;
 
+        const isInProgress = s.status === "IN_PROGRESS";
+        const progressPct = isInProgress
+          ? Math.min(100, Math.max(0,
+              (Date.now() - new Date(s.startAt).getTime()) /
+              (new Date(s.endAt).getTime() - new Date(s.startAt).getTime()) * 100
+            ))
+          : 0;
+
         return (
           <Link
             key={s.id}
             to="/dashboard/schedules/$scheduleId"
             params={{ scheduleId: s.id }}
-            className="flex flex-col gap-0.5 px-2 py-2 hover:bg-muted/30 transition-colors"
+            className="relative flex flex-col gap-0.5 px-2 py-2 hover:bg-muted/30 transition-colors overflow-hidden"
           >
             <div className="flex items-center gap-2">
-              <StatusDot variant={variant} pulse={s.status === "IN_PROGRESS"} />
+              <StatusDot variant={variant} pulse={isInProgress} />
               <span className="font-mono text-[11px] text-muted-foreground w-10 shrink-0">
                 {formatTime(s.startAt)}
               </span>
@@ -95,6 +103,9 @@ export function LiveOpsFeed() {
             <div className="pl-[1.375rem] font-mono text-[10px] text-muted-foreground">
               ↳ {pilotName} · {droneName}
             </div>
+            {isInProgress && (
+              <div className="absolute bottom-0 left-0 h-px bg-primary" style={{ width: `${progressPct}%` }} />
+            )}
           </Link>
         );
       })}

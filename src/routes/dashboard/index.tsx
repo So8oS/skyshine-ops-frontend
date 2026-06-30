@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useUser } from "@/actions/auth";
 import WeeklyWeatherCalendar from "@/components/weather";
 import { useStatisticsOverview, useJobStats } from "@/actions/statistics";
@@ -20,6 +20,19 @@ export const Route = createFileRoute("/dashboard/")({
 /* ---------- Helpers ---------- */
 
 const UAE_TZ = "Asia/Dubai";
+
+function getGreeting(firstName: string): string {
+  const hour = parseInt(
+    new Intl.DateTimeFormat("en-GB", { timeZone: UAE_TZ, hour: "numeric", hour12: false }).format(new Date()),
+    10
+  );
+  let prefix: string;
+  if (hour >= 5 && hour < 12)       prefix = "Good morning";
+  else if (hour >= 12 && hour < 17)  prefix = "Afternoon";
+  else if (hour >= 17 && hour < 21)  prefix = "Evening";
+  else                               prefix = "Burning the midnight oil";
+  return `${prefix}${firstName ? `, ${firstName}.` : "."}`;
+}
 
 function getAUHDate(): string {
   return new Intl.DateTimeFormat("en-GB", {
@@ -65,8 +78,21 @@ const statusTimelineColor: Record<ScheduleStatus, string> = {
   CANCELLED:   "var(--muted-foreground)",
 };
 
+function calcNowPct(): number {
+  const now = new Date();
+  const todayStart = new Date(now);
+  todayStart.setHours(TIMELINE_START_H, 0, 0, 0);
+  return Math.min(100, Math.max(0, ((now.getTime() - todayStart.getTime()) / TIMELINE_DURATION_MS) * 100));
+}
+
 function TodayTimeline() {
   const range = useMemo(() => todayRange(), []);
+  const [nowPct, setNowPct] = useState(() => calcNowPct());
+
+  useEffect(() => {
+    const id = setInterval(() => setNowPct(calcNowPct()), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   const { data, isLoading } = useSchedules(
     { from: range.from, to: range.to, pageSize: 100 },
@@ -75,13 +101,11 @@ function TodayTimeline() {
 
   const schedules = data?.items ?? [];
 
-  const now = new Date();
-  const todayStart = new Date(now);
-  todayStart.setHours(TIMELINE_START_H, 0, 0, 0);
-  const nowPct = Math.min(
-    100,
-    Math.max(0, ((now.getTime() - todayStart.getTime()) / TIMELINE_DURATION_MS) * 100)
-  );
+  const todayStart = useMemo(() => {
+    const d = new Date();
+    d.setHours(TIMELINE_START_H, 0, 0, 0);
+    return d;
+  }, []);
 
   const hours = Array.from({ length: TIMELINE_END_H - TIMELINE_START_H + 1 }, (_, i) => i + TIMELINE_START_H);
 
@@ -143,6 +167,14 @@ function TodayTimeline() {
           const color = statusTimelineColor[s.status as ScheduleStatus] ?? "var(--muted-foreground)";
           const topPct = (i % 3) * 33;
 
+          const isInProgress = s.status === "IN_PROGRESS";
+          const progressPct = isInProgress
+            ? Math.min(100, Math.max(0,
+                (Date.now() - new Date(s.startAt).getTime()) /
+                (new Date(s.endAt).getTime() - new Date(s.startAt).getTime()) * 100
+              ))
+            : 0;
+
           return (
             <div
               key={s.id}
@@ -168,6 +200,12 @@ function TodayTimeline() {
               <span className="text-[9px] truncate text-foreground/70">
                 {s.job?.name ?? s.jobId}
               </span>
+              {isInProgress && (
+                <div
+                  className="absolute bottom-0 left-0 h-px"
+                  style={{ width: `${progressPct}%`, backgroundColor: "var(--primary)" }}
+                />
+              )}
             </div>
           );
         })}
@@ -263,7 +301,7 @@ function DashboardIndex() {
       {/* Welcome line */}
       <div className="flex items-baseline justify-between gap-4">
         <h1 className="text-2xl font-display font-bold">
-          Welcome back{firstName ? `, ${firstName}.` : "."}
+          {getGreeting(firstName)}
         </h1>
         <span className="font-mono text-[11px] text-muted-foreground shrink-0">{auhDate}</span>
       </div>

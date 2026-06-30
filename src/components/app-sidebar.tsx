@@ -9,6 +9,7 @@ import {
   Palette,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 import {
   Sidebar,
@@ -35,6 +36,30 @@ const navItems = [
   { title: "Drones",    url: "/dashboard/drones",    icon: Plane     },
   { title: "Forms",     url: "/dashboard/forms",     icon: FileText  },
 ];
+
+const SESSION_START = Date.now();
+
+function pad(n: number) { return String(n).padStart(2, "0"); }
+
+function SessionUptime() {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const elapsed = Math.floor((Date.now() - SESSION_START) / 1000);
+  const h = Math.floor(elapsed / 3600);
+  const m = Math.floor((elapsed % 3600) / 60);
+  const s = elapsed % 60;
+  return (
+    <div className="flex items-center justify-between px-2 py-1">
+      <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/60">Uptime</span>
+      <span className="font-mono text-[10px] tabular-nums text-muted-foreground/80">
+        {pad(h)}:{pad(m)}:{pad(s)}
+      </span>
+    </div>
+  );
+}
 
 function SystemStatus() {
   const { data: stats } = useStatisticsOverview();
@@ -157,6 +182,7 @@ export function AppSidebar() {
 
         {/* System status block */}
         <SystemStatus />
+        <SessionUptime />
 
         <SidebarSeparator />
 
