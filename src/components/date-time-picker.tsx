@@ -3,34 +3,20 @@
 import * as React from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TimePickerInput, PeriodSelector, type Period } from "@/components/ui/time-picker";
 
-/** Parse value to Date (or undefined if empty) and time string HH:mm */
-function parseValue(value: string): { date: Date | undefined; time: string } {
-  if (!value || value.trim() === "") {
-    return { date: undefined, time: "" };
-  }
+function parseValue(value: string): Date | undefined {
+  if (!value || value.trim() === "") return undefined;
   const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return { date: undefined, time: "" };
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return {
-    date: d,
-    time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
-  };
+  return Number.isNaN(d.getTime()) ? undefined : d;
 }
 
-/** Build datetime-local string (YYYY-MM-DDTHH:mm) from date + time */
-function toDateTimeLocal(date: Date, time: string): string {
-  const parts = time.split(":").map(Number);
-  const hours = parts[0] ?? 0;
-  const minutes = parts[1] ?? 0;
-  const d = new Date(date);
-  d.setHours(hours, minutes, 0, 0);
+function toDateTimeLocal(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 export interface DateTimePickerProps {
@@ -52,30 +38,36 @@ export function DateTimePicker({
   className,
   error,
 }: DateTimePickerProps) {
-  const parsed = React.useMemo(() => parseValue(value), [value]);
-  const [date, setDate] = React.useState<Date | undefined>(parsed.date);
-  const [time, setTime] = React.useState(parsed.time);
+  const [date, setDateState] = React.useState<Date | undefined>(() => parseValue(value));
+  const [period, setPeriod] = React.useState<Period>(() => {
+    const d = parseValue(value);
+    return d && d.getHours() >= 12 ? "PM" : "AM";
+  });
+
+  const hourRef = React.useRef<HTMLInputElement>(null);
+  const minuteRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    const p = parseValue(value);
-    setDate(p.date);
-    setTime(p.time);
+    const d = parseValue(value);
+    setDateState(d);
+    if (d) setPeriod(d.getHours() >= 12 ? "PM" : "AM");
   }, [value]);
 
-  const handleDateSelect = (d: Date | undefined) => {
-    setDate(d);
-    if (d) {
-      const timeVal = time || "00:00";
-      setTime(timeVal);
-      onChange(toDateTimeLocal(d, timeVal));
+  const handleDateSelect = (selected: Date | undefined) => {
+    if (!selected) return;
+    const newDate = new Date(selected);
+    if (date) {
+      newDate.setHours(date.getHours(), date.getMinutes(), 0, 0);
+    } else {
+      newDate.setHours(0, 0, 0, 0);
     }
+    setDateState(newDate);
+    onChange(toDateTimeLocal(newDate));
   };
 
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const t = e.target.value;
-    setTime(t);
-    const d = date ?? new Date();
-    if (t) onChange(toDateTimeLocal(d, t));
+  const handleTimeChange = (newDate: Date) => {
+    setDateState(newDate);
+    onChange(toDateTimeLocal(newDate));
   };
 
   return (
@@ -95,23 +87,43 @@ export function DateTimePicker({
             className="rounded-lg border-0"
           />
         </CardContent>
-        <CardFooter className="border-t bg-muted/30 flex flex-col gap-2 py-3">
-          <div className="flex items-center gap-2 w-full">
-            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
-            <Input
-              id={id}
-              type="time"
-              value={time}
-              onChange={handleTimeChange}
+        <CardFooter className="border-t bg-muted/30 flex items-center gap-2 py-3 px-4">
+          <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+          <div className="flex items-center gap-1">
+            <TimePickerInput
+              ref={hourRef}
+              picker="hours"
+              period={period}
+              date={date}
+              setDate={handleTimeChange}
               disabled={disabled}
-              className="flex-1 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full cursor-pointer"
+              onRightFocus={() => minuteRef.current?.focus()}
+            />
+            <span className="text-muted-foreground font-mono text-sm select-none">:</span>
+            <TimePickerInput
+              ref={minuteRef}
+              picker="minutes"
+              date={date}
+              setDate={handleTimeChange}
+              disabled={disabled}
+              onLeftFocus={() => hourRef.current?.focus()}
+              onRightFocus={() => { /* period via click */ }}
             />
           </div>
+          <PeriodSelector
+            period={period}
+            date={date}
+            setDate={(newDate) => {
+              const h = newDate.getHours();
+              setPeriod(h >= 12 ? "PM" : "AM");
+              handleTimeChange(newDate);
+            }}
+            onLeftFocus={() => minuteRef.current?.focus()}
+            disabled={disabled}
+          />
         </CardFooter>
       </Card>
-      {error && (
-        <p className="text-sm text-destructive">{error}</p>
-      )}
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }

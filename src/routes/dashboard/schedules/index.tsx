@@ -28,8 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { ScheduleStatusBadge } from "@/components/status-badge";
+import { FilterDatePicker } from "@/components/filter-date-picker";
 import { EmptyState } from "@/components/empty-state";
 import { SiteErrorFallback } from "@/components/site-error-fallback";
 import { ScheduleCalendar } from "@/features/calendar/schedule-calendar";
@@ -276,34 +276,16 @@ function SchedulesPage() {
               </SelectContent>
             </Select>
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">From (start ≥)</label>
-                <Input
-                  type="datetime-local"
-                  value={from ? from.slice(0, 16) : ""}
-                  onChange={(e) =>
-                    setSearchParams({
-                      from: e.target.value ? new Date(e.target.value).toISOString() : undefined,
-                      page: 1,
-                    })
-                  }
-                  className="w-full md:w-[180px]"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">To (end ≤)</label>
-                <Input
-                  type="datetime-local"
-                  value={to ? to.slice(0, 16) : ""}
-                  onChange={(e) =>
-                    setSearchParams({
-                      to: e.target.value ? new Date(e.target.value).toISOString() : undefined,
-                      page: 1,
-                    })
-                  }
-                  className="w-full md:w-[180px]"
-                />
-              </div>
+              <FilterDatePicker
+                label="From (start ≥)"
+                value={from}
+                onChange={(iso) => setSearchParams({ from: iso, page: 1 })}
+              />
+              <FilterDatePicker
+                label="To (end ≤)"
+                value={to}
+                onChange={(iso) => setSearchParams({ to: iso, page: 1 })}
+              />
             </div>
             <Select
               value={String(pageSize)}
