@@ -3,6 +3,8 @@ import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/s
 import { AppSidebar } from "@/components/app-sidebar";
 import { authKeys, authApi } from "@/actions/auth";
 import { OpsClock } from "@/components/ops-clock";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { pageTransition } from "@/lib/motion";
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: async ({ context }) => {
@@ -44,6 +46,14 @@ function Breadcrumb() {
 }
 
 function DashboardLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const reduced = useReducedMotion();
+
+  // Key by the top-level section segment only (e.g. "jobs", "sites").
+  // This means the outer transition fires ONLY on true section switches,
+  // not on in-section drill navigation (list → detail → edit → back).
+  const sectionKey = pathname.split("/").filter(Boolean)[1] ?? "";
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -53,7 +63,6 @@ function DashboardLayout() {
           <div className="h-4 w-px bg-border" />
           <Breadcrumb />
           <div className="flex-1" />
-          {/* Global search placeholder — command palette hook for later */}
           <button
             className="hidden md:flex items-center gap-2 rounded-[6px] border border-border bg-muted/30 px-3 h-7 text-muted-foreground/60 hover:text-muted-foreground hover:border-border-strong transition-colors"
             title="Search (coming soon)"
@@ -66,8 +75,18 @@ function DashboardLayout() {
           </button>
           <OpsClock />
         </header>
-        <main className="flex-1 p-6">
-          <Outlet />
+        <main className="flex-1 p-6 overflow-hidden">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={sectionKey}
+              initial={reduced ? false : pageTransition.initial}
+              animate={pageTransition.animate}
+              exit={reduced ? {} : pageTransition.exit}
+              transition={reduced ? { duration: 0.01 } : pageTransition.transition}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
       </SidebarInset>
     </SidebarProvider>
