@@ -72,7 +72,7 @@ function EditSchedulePage() {
     <div className="max-w-2xl space-y-8">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon-sm" asChild>
+        <Button variant="ghost" size="icon-sm" className="hover:text-primary transition-colors" asChild>
           <Link to="/dashboard/schedules"><ArrowLeft className="h-4 w-4" /></Link>
         </Button>
         <div>
@@ -83,9 +83,9 @@ function EditSchedulePage() {
               </>
             ) : (
               <>
-                <h1 className="text-xl font-bold tracking-tight">Edit Schedule</h1>
-                <p className="text-sm text-muted-foreground">
-                  {schedule?.job?.name ?? "—"} · {schedule?.pilot?.name ?? "—"}
+                <h1 className="text-2xl font-display font-bold">Edit Schedule</h1>
+                <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                  EDIT · SCHEDULE · SCH-{scheduleId.slice(0, 8).toUpperCase()}
                 </p>
               </>
             )}
@@ -134,7 +134,7 @@ function EditSchedulePage() {
                 {deleteSchedule.isPending
                   ? <Loader2 className="h-4 w-4 animate-spin" />
                   : <Trash2 className="h-4 w-4" />}
-                Delete Schedule
+                DELETE SCHEDULE
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>

@@ -62,7 +62,7 @@ function EditDronePage() {
     <div className="max-w-2xl space-y-8">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon-sm" asChild>
+        <Button variant="ghost" size="icon-sm" className="hover:text-primary transition-colors" asChild>
           <Link to="/dashboard/drones"><ArrowLeft className="h-4 w-4" /></Link>
         </Button>
         <div>
@@ -73,8 +73,10 @@ function EditDronePage() {
               </>
             ) : (
               <>
-                <h1 className="text-xl font-bold tracking-tight">{drone?.name}</h1>
-                <p className="text-sm text-muted-foreground font-mono">{drone?.serialNumber}</p>
+                <h1 className="text-2xl font-display font-bold">{drone?.name}</h1>
+                <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                  EDIT · DRONE · {drone?.serialNumber ?? droneId.slice(0, 8).toUpperCase()}
+                </p>
               </>
             )}
         </div>
@@ -123,7 +125,7 @@ function EditDronePage() {
                 {deleteDrone.isPending
                   ? <Loader2 className="h-4 w-4 animate-spin" />
                   : <Trash2 className="h-4 w-4" />}
-                Delete Drone
+                DELETE DRONE
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>

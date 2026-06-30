@@ -50,7 +50,7 @@ function EditSitePage() {
     <div className="max-w-2xl space-y-8">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon-sm" asChild>
+        <Button variant="ghost" size="icon-sm" className="hover:text-primary transition-colors" asChild>
           <Link to="/dashboard/sites"><ArrowLeft className="h-4 w-4" /></Link>
         </Button>
         <div>
@@ -61,8 +61,10 @@ function EditSitePage() {
               </>
             ) : (
               <>
-                <h1 className="text-xl font-bold tracking-tight">{site?.name}</h1>
-                <p className="text-sm text-muted-foreground">Edit site information</p>
+                <h1 className="text-2xl font-display font-bold">{site?.name}</h1>
+                <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                  EDIT · SITE · SITE-{siteId.slice(0, 8).toUpperCase()}
+                </p>
               </>
             )}
         </div>
@@ -109,7 +111,7 @@ function EditSitePage() {
                 {deleteSite.isPending
                   ? <Loader2 className="h-4 w-4 animate-spin" />
                   : <Trash2 className="h-4 w-4" />}
-                Delete Site
+                DELETE SITE
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>

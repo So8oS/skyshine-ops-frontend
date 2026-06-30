@@ -1,14 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ArrowLeft, Pencil, Calendar } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import {
   useDrone,
   dronesApi,
@@ -16,11 +8,12 @@ import {
   DRONE_STATUS_LABELS,
   type DroneStatus,
 } from "@/actions/drones";
-import { SCHEDULE_STATUS_LABELS } from "@/actions/schedules";
-import type { ScheduleStatus } from "@/actions/schedules";
+import { SCHEDULE_STATUS_LABELS, type ScheduleStatus } from "@/actions/schedules";
 import { SiteErrorFallback } from "@/components/site-error-fallback";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DroneStatusBadge, ScheduleStatusBadge } from "@/components/status-badge";
+import { StatusDot } from "@/components/status-dot";
+import { DataRow } from "@/components/data-row";
 
 export const Route = createFileRoute("/dashboard/drones/$droneId/")({
   component: DroneDetailsPage,
@@ -33,64 +26,78 @@ export const Route = createFileRoute("/dashboard/drones/$droneId/")({
   },
 });
 
-function formatScheduleTime(iso: string) {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "short",
-    timeStyle: "short",
-  });
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/60 mb-2">
+      {children}
+    </p>
+  );
 }
+
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Dubai",
+  }).toUpperCase();
+}
+
+const statusVariant: Record<DroneStatus, "live" | "warn" | "down"> = {
+  AVAILABLE:      "live",
+  MAINTENANCE:    "warn",
+  OUT_OF_SERVICE: "down",
+};
+
+const scheduleStatusVariant: Record<ScheduleStatus, "live" | "warn" | "ok" | "idle"> = {
+  IN_PROGRESS: "live",
+  ASSIGNED:    "warn",
+  COMPLETED:   "ok",
+  CANCELLED:   "idle",
+};
 
 function DroneDetailsPage() {
   const { droneId } = Route.useParams();
   const { data: drone, isLoading, error } = useDrone(droneId);
 
-  if (error) {
-    return (
-      <SiteErrorFallback error={error} title="Failed to load drone" />
-    );
-  }
+  if (error) return <SiteErrorFallback error={error} title="Failed to load drone" />;
 
   const schedules = drone?.schduals ?? [];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
-        <div className="flex items-center gap-4">
-          <Link to="/dashboard/drones">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
+    <div className="max-w-2xl space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon-sm" className="hover:text-primary transition-colors" asChild>
+            <Link to="/dashboard/drones"><ArrowLeft className="h-4 w-4" /></Link>
+          </Button>
           <div>
-              {isLoading ? (
-                <>
-                  <Skeleton className="h-8 w-48 mb-1" />
-                  <Skeleton className="h-4 w-32" />
-                </>
-              ) : (
-                <>
-                  <h1 className="text-2xl font-bold tracking-tight">
-                    {drone?.name}
-                  </h1>
-                  <p className="text-muted-foreground">
-                    {drone?.serialNumber}
-                    {drone?.status != null && (
-                      <span className="ml-2">
-                        · {DRONE_STATUS_LABELS[drone.status as DroneStatus]}
-                      </span>
-                    )}
-                  </p>
-                </>
-              )}
+            {isLoading ? (
+              <>
+                <Skeleton className="h-7 w-48 mb-1" />
+                <Skeleton className="h-4 w-28" />
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <StatusDot variant={statusVariant[drone?.status as DroneStatus] ?? "idle"} />
+                  <h1 className="text-2xl font-display font-bold">{drone?.name}</h1>
+                </div>
+                <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                  {drone?.serialNumber ?? droneId.slice(0, 8).toUpperCase()}
+                </p>
+              </>
+            )}
           </div>
         </div>
         {drone && (
-          <Link
-            to="/dashboard/drones/$droneId/edit"
-            params={{ droneId }}
-          >
-            <Button variant="outline">
-              <Pencil className="h-4 w-4 mr-2" />
+          <Link to="/dashboard/drones/$droneId/edit" params={{ droneId }}>
+            <Button variant="outline" size="sm">
+              <Pencil className="h-3.5 w-3.5 mr-1.5" />
               Edit
             </Button>
           </Link>
@@ -98,116 +105,70 @@ function DroneDetailsPage() {
       </div>
 
       {isLoading ? (
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-32" />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-5 w-48" />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+        <div className="rounded-[6px] border border-border p-5 space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex gap-4">
+              <Skeleton className="h-4 w-24 shrink-0" />
+              <Skeleton className="h-4 w-40" />
+            </div>
+          ))}
+        </div>
       ) : drone ? (
         <>
-          <Card>
-            <CardHeader>
-              <CardTitle>Drone</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Name</p>
-                <p className="font-medium">{drone.name}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Serial number</p>
-                <p className="font-medium">{drone.serialNumber}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Status</p>
-                <p className="font-medium">
-                  <span className="inline-flex rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
-                    {DRONE_STATUS_LABELS[drone.status]}
-                  </span>
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Drone info */}
+          <div className="rounded-[6px] border border-border px-5 py-4">
+            <SectionLabel>Fleet Record</SectionLabel>
+            <div className="space-y-0">
+              <DataRow label="Name" value={drone.name} />
+              <DataRow label="Serial" value={drone.serialNumber} mono />
+              <DataRow
+                label="Status"
+                value={
+                  <DroneStatusBadge
+                    status={drone.status}
+                    label={DRONE_STATUS_LABELS[drone.status as DroneStatus] ?? drone.status}
+                  />
+                }
+              />
+              {/* TODO: backend addition needed — lastServiceAt, batteryCycles */}
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Schedules ({schedules.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {schedules.length === 0 ? (
-                <p className="text-muted-foreground text-sm py-4">
-                  No schedules for this drone.
-                </p>
-              ) : (
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Site</TableHead>
-                        <TableHead>Job</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Pilot</TableHead>
-                        <TableHead>Start</TableHead>
-                        <TableHead>End</TableHead>
-                        <TableHead className="text-right w-[80px]">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {schedules.map((s) => (
-                        <TableRow key={s.id}>
-                          <TableCell className="text-muted-foreground">
-                            {s.job?.site?.name ?? "—"}
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            <Link
-                              to="/dashboard/schedules/$scheduleId"
-                              params={{ scheduleId: s.id }}
-                              className="hover:underline"
-                            >
-                              {s.job?.name ?? s.job?.id ?? "—"}
-                            </Link>
-                          </TableCell>
-                          <TableCell>
-                            <span className="inline-flex rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
-                              {s.status && s.status in SCHEDULE_STATUS_LABELS
-                                ? SCHEDULE_STATUS_LABELS[s.status as ScheduleStatus]
-                                : s.status ?? "—"}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            {s.pilot?.name ?? "—"}
-                          </TableCell>
-                          <TableCell>{formatScheduleTime(s.startAt)}</TableCell>
-                          <TableCell>{formatScheduleTime(s.endAt)}</TableCell>
-                          <TableCell className="text-right">
-                            <Link
-                              to="/dashboard/schedules/$scheduleId"
-                              params={{ scheduleId: s.id }}
-                            >
-                              <Button variant="ghost" size="sm" className="h-8">
-                                View
-                              </Button>
-                            </Link>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Schedules */}
+          <div className="rounded-[6px] border border-border overflow-hidden">
+            <div className="px-5 py-3 border-b border-border bg-card/40">
+              <SectionLabel>Schedules ({schedules.length})</SectionLabel>
+            </div>
+            {schedules.length === 0 ? (
+              <p className="text-muted-foreground text-sm px-5 py-6">No schedules for this drone.</p>
+            ) : (
+              schedules.map((s) => {
+                const statusLabel = SCHEDULE_STATUS_LABELS[s.status as ScheduleStatus] ?? s.status;
+                return (
+                  <Link
+                    key={s.id}
+                    to="/dashboard/schedules/$scheduleId"
+                    params={{ scheduleId: s.id }}
+                    className="relative flex items-center gap-3 px-5 py-3 border-b border-border last:border-0 hover:bg-card/60 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary before:opacity-0 hover:before:opacity-100 before:transition-opacity transition-colors"
+                  >
+                    <StatusDot
+                      variant={scheduleStatusVariant[s.status as ScheduleStatus] ?? "idle"}
+                      pulse={s.status === "IN_PROGRESS"}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-display font-semibold text-sm leading-tight truncate">
+                        {s.job?.site?.name ? `${s.job.site.name} — ` : ""}{s.job?.name ?? s.job?.id ?? ""}
+                      </p>
+                      <p className="font-mono text-[10px] text-muted-foreground mt-0.5">
+                        {formatTime(s.startAt)} · {s.pilot?.name ?? "—"}
+                      </p>
+                    </div>
+                    {s.status && <ScheduleStatusBadge status={s.status} label={statusLabel} />}
+                  </Link>
+                );
+              })
+            )}
+          </div>
         </>
       ) : null}
     </div>
