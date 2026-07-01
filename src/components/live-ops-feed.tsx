@@ -1,11 +1,13 @@
 import { useFeed, type FeedItemKind } from "@/actions/feed";
 import { StatusDot } from "./status-dot";
 
-const kindToVariant: Record<FeedItemKind, "live" | "ok" | "idle"> = {
-  SCHEDULE_UPDATED: "live",
-  SITE_CREATED:     "ok",
-  JOB_CREATED:      "ok",
-  DRONE_CREATED:    "idle",
+const kindToVariant: Record<FeedItemKind, "live" | "ok" | "idle" | "warn"> = {
+  SCHEDULE_UPDATED:     "live",
+  SCHEDULE_CREATED:     "ok",
+  SITE_CREATED:         "ok",
+  JOB_CREATED:          "ok",
+  DRONE_CREATED:        "idle",
+  DRONE_STATUS_CHANGED: "warn",
 };
 
 function formatTime(iso: string): string {
@@ -18,7 +20,8 @@ function formatTime(iso: string): string {
 }
 
 export function LiveOpsFeed() {
-  const { data: items = [], isLoading } = useFeed(20);
+  const { data, isLoading } = useFeed({ pageSize: 20 });
+  const items = data?.items ?? [];
 
   if (isLoading) {
     return (

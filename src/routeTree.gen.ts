@@ -21,6 +21,7 @@ import { Route as DashboardUiIndexRouteImport } from './routes/dashboard/ui/inde
 import { Route as DashboardSitesIndexRouteImport } from './routes/dashboard/sites/index'
 import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/settings/index'
 import { Route as DashboardSchedulesIndexRouteImport } from './routes/dashboard/schedules/index'
+import { Route as DashboardLogsIndexRouteImport } from './routes/dashboard/logs/index'
 import { Route as DashboardJobsIndexRouteImport } from './routes/dashboard/jobs/index'
 import { Route as DashboardFormsIndexRouteImport } from './routes/dashboard/forms/index'
 import { Route as DashboardDronesIndexRouteImport } from './routes/dashboard/drones/index'
@@ -95,6 +96,11 @@ const DashboardSchedulesIndexRoute = DashboardSchedulesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashboardSchedulesRouteRoute,
+} as any)
+const DashboardLogsIndexRoute = DashboardLogsIndexRouteImport.update({
+  id: '/logs/',
+  path: '/logs/',
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const DashboardJobsIndexRoute = DashboardJobsIndexRouteImport.update({
   id: '/',
@@ -189,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/drones/': typeof DashboardDronesIndexRoute
   '/dashboard/forms/': typeof DashboardFormsIndexRoute
   '/dashboard/jobs/': typeof DashboardJobsIndexRoute
+  '/dashboard/logs/': typeof DashboardLogsIndexRoute
   '/dashboard/schedules/': typeof DashboardSchedulesIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/sites/': typeof DashboardSitesIndexRoute
@@ -212,6 +219,7 @@ export interface FileRoutesByTo {
   '/dashboard/drones': typeof DashboardDronesIndexRoute
   '/dashboard/forms': typeof DashboardFormsIndexRoute
   '/dashboard/jobs': typeof DashboardJobsIndexRoute
+  '/dashboard/logs': typeof DashboardLogsIndexRoute
   '/dashboard/schedules': typeof DashboardSchedulesIndexRoute
   '/dashboard/settings': typeof DashboardSettingsIndexRoute
   '/dashboard/sites': typeof DashboardSitesIndexRoute
@@ -241,6 +249,7 @@ export interface FileRoutesById {
   '/dashboard/drones/': typeof DashboardDronesIndexRoute
   '/dashboard/forms/': typeof DashboardFormsIndexRoute
   '/dashboard/jobs/': typeof DashboardJobsIndexRoute
+  '/dashboard/logs/': typeof DashboardLogsIndexRoute
   '/dashboard/schedules/': typeof DashboardSchedulesIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/sites/': typeof DashboardSitesIndexRoute
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/dashboard/drones/'
     | '/dashboard/forms/'
     | '/dashboard/jobs/'
+    | '/dashboard/logs/'
     | '/dashboard/schedules/'
     | '/dashboard/settings/'
     | '/dashboard/sites/'
@@ -294,6 +304,7 @@ export interface FileRouteTypes {
     | '/dashboard/drones'
     | '/dashboard/forms'
     | '/dashboard/jobs'
+    | '/dashboard/logs'
     | '/dashboard/schedules'
     | '/dashboard/settings'
     | '/dashboard/sites'
@@ -322,6 +333,7 @@ export interface FileRouteTypes {
     | '/dashboard/drones/'
     | '/dashboard/forms/'
     | '/dashboard/jobs/'
+    | '/dashboard/logs/'
     | '/dashboard/schedules/'
     | '/dashboard/settings/'
     | '/dashboard/sites/'
@@ -425,6 +437,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/schedules/'
       preLoaderRoute: typeof DashboardSchedulesIndexRouteImport
       parentRoute: typeof DashboardSchedulesRouteRoute
+    }
+    '/dashboard/logs/': {
+      id: '/dashboard/logs/'
+      path: '/logs'
+      fullPath: '/dashboard/logs/'
+      preLoaderRoute: typeof DashboardLogsIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/jobs/': {
       id: '/dashboard/jobs/'
@@ -604,6 +623,7 @@ interface DashboardRouteRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardFormsFormIdRoute: typeof DashboardFormsFormIdRoute
   DashboardFormsIndexRoute: typeof DashboardFormsIndexRoute
+  DashboardLogsIndexRoute: typeof DashboardLogsIndexRoute
   DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
   DashboardUiIndexRoute: typeof DashboardUiIndexRoute
 }
@@ -616,6 +636,7 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardFormsFormIdRoute: DashboardFormsFormIdRoute,
   DashboardFormsIndexRoute: DashboardFormsIndexRoute,
+  DashboardLogsIndexRoute: DashboardLogsIndexRoute,
   DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
   DashboardUiIndexRoute: DashboardUiIndexRoute,
 }

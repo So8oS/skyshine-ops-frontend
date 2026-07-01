@@ -5,6 +5,7 @@ import {
   FileText,
   LogOut,
   Plane,
+  ScrollText,
   Settings,
   Palette,
 } from "lucide-react";
@@ -46,6 +47,7 @@ const navItems = [
   { title: "Sites",     url: "/dashboard/sites",     icon: Building2 },
   { title: "Jobs",      url: "/dashboard/jobs",      icon: Briefcase },
   { title: "Schedules", url: "/dashboard/schedules", icon: Calendar  },
+  { title: "Logs",      url: "/dashboard/logs",      icon: ScrollText},
   { title: "Drones",    url: "/dashboard/drones",    icon: Plane     },
   { title: "Forms",     url: "/dashboard/forms",     icon: FileText  },
 ];

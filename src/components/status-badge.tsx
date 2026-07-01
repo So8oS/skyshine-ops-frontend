@@ -45,6 +45,15 @@ const jobTypeClass: Record<string, string> = {
   CLEANING:   "bg-teal/10 text-teal border-teal/30",
 };
 
+const feedKindClass: Record<string, string> = {
+  SCHEDULE_UPDATED:     "bg-primary/10 text-primary border-primary/30",
+  SCHEDULE_CREATED:     "bg-teal/10 text-teal border-teal/30",
+  SITE_CREATED:         "bg-teal/10 text-teal border-teal/30",
+  JOB_CREATED:          "bg-teal/10 text-teal border-teal/30",
+  DRONE_CREATED:        "bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20",
+  DRONE_STATUS_CHANGED: "bg-primary/10 text-primary border-primary/30",
+};
+
 const fallbackClass = "bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20";
 
 export function ScheduleStatusBadge({ status, label }: { status: string; label: string }) {
@@ -63,4 +72,8 @@ export function DroneStatusBadge({ status, label }: { status: string; label: str
 
 export function JobTypeBadge({ type, label }: { type: string; label: string }) {
   return <Badge label={label} className={jobTypeClass[type] ?? fallbackClass} />;
+}
+
+export function FeedKindBadge({ kind, label }: { kind: string; label: string }) {
+  return <Badge label={label} className={feedKindClass[kind] ?? fallbackClass} />;
 }
