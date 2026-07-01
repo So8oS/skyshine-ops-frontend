@@ -39,3 +39,18 @@ export const drillBack = {
   exit:       { opacity: 0, x: 16 },
   transition: { duration: MOTION.duration.page, ease: MOTION.ease.inOut },
 };
+
+const MAX_TOTAL_STAGGER = 0.3; // never let a long list take more than ~300ms to finish staggering in
+
+export const rowStaggerRow = {
+  hidden:  { opacity: 0, y: 4 },
+  visible: { opacity: 1, y: 0, transition: { duration: MOTION.duration.fast, ease: MOTION.ease.out } },
+};
+
+export function rowStaggerContainer(itemCount: number) {
+  return {
+    visible: {
+      transition: { staggerChildren: Math.min(0.025, MAX_TOTAL_STAGGER / Math.max(itemCount, 1)) },
+    },
+  };
+}

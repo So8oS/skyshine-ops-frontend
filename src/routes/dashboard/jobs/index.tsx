@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Briefcase, Plus, Loader2, Search } from "lucide-react";
 import { useMemo, useCallback } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   useJobs,
   jobsApi,
@@ -25,6 +26,8 @@ import { StatusDot } from "@/components/status-dot";
 import { EmptyState } from "@/components/empty-state";
 import { SiteErrorFallback } from "@/components/site-error-fallback";
 import { cn } from "@/lib/utils";
+import { rowStaggerRow, rowStaggerContainer } from "@/lib/motion";
+import { useStartedLoading } from "@/hooks/use-started-loading";
 
 export type JobsSearch = {
   q?: string;
@@ -90,6 +93,14 @@ function JobsPage() {
   const jobs = data?.items ?? [];
   const total = data?.total ?? 0;
   const totalPages = data?.totalPages ?? 1;
+
+  // Only stagger rows in when this mount genuinely had to wait on data (cold
+  // load). On a warm remount the rows render immediately and the route-level
+  // page/drill transition already communicates "this is new" — a second
+  // animation on top of that would double up.
+  const startedLoading = useStartedLoading(isLoading);
+  const reducedMotion = useReducedMotion();
+  const animateRows = startedLoading && !reducedMotion;
 
   const setSearchParams = useCallback(
     (updates: Partial<JobsSearch>) => {
@@ -186,42 +197,49 @@ function JobsPage() {
             <div key={i} className="h-16 animate-pulse bg-muted border-b border-border last:border-0" />
           ))
         ) : jobs.length === 0 ? null : (
-          jobs.map((job) => (
-            <Link
-              key={job.id}
-              to="/dashboard/jobs/$jobId/edit"
-              params={{ jobId: job.id }}
-              className={cn(
-                "relative flex items-center gap-4 px-4 h-16 group transition-colors",
-                "border-b border-border last:border-0",
-                "hover:bg-card/60",
-                "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary before:opacity-0 hover:before:opacity-100 before:transition-opacity"
-              )}
-            >
-              {/* Status dot + short ID */}
-              <div className="flex items-center gap-2 shrink-0 w-28">
-                <StatusDot variant="ok" />
-                <span className="font-mono text-[11px] text-muted-foreground tracking-wide">
-                  {shortJobId(job.id)}
-                </span>
-              </div>
+          <motion.div
+            initial={animateRows ? "hidden" : false}
+            animate="visible"
+            variants={rowStaggerContainer(jobs.length)}
+          >
+            {jobs.map((job) => (
+              <motion.div key={job.id} variants={rowStaggerRow}>
+                <Link
+                  to="/dashboard/jobs/$jobId/edit"
+                  params={{ jobId: job.id }}
+                  className={cn(
+                    "relative flex items-center gap-4 px-4 h-16 group transition-colors",
+                    "border-b border-border last:border-0",
+                    "hover:bg-card/60",
+                    "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary before:opacity-0 hover:before:opacity-100 before:transition-opacity"
+                  )}
+                >
+                  {/* Status dot + short ID */}
+                  <div className="flex items-center gap-2 shrink-0 w-28">
+                    <StatusDot variant="ok" />
+                    <span className="font-mono text-[11px] text-muted-foreground tracking-wide">
+                      {shortJobId(job.id)}
+                    </span>
+                  </div>
 
-              {/* Job name + site */}
-              <div className="flex-1 min-w-0">
-                <p className="font-display font-semibold text-sm leading-tight truncate">
-                  {job.name}
-                </p>
-                <p className="font-mono text-[11px] text-muted-foreground truncate mt-0.5">
-                  {job.site?.name ?? job.siteId}
-                </p>
-              </div>
+                  {/* Job name + site */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display font-semibold text-sm leading-tight truncate">
+                      {job.name}
+                    </p>
+                    <p className="font-mono text-[11px] text-muted-foreground truncate mt-0.5">
+                      {job.site?.name ?? job.siteId}
+                    </p>
+                  </div>
 
-              {/* Type badge */}
-              <div className="shrink-0 flex items-center">
-                <JobTypeBadge type={job.type} label={JOB_TYPE_LABELS[job.type as JobType] ?? job.type} />
-              </div>
-            </Link>
-          ))
+                  {/* Type badge */}
+                  <div className="shrink-0 flex items-center">
+                    <JobTypeBadge type={job.type} label={JOB_TYPE_LABELS[job.type as JobType] ?? job.type} />
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
         )}
       </div>
 
