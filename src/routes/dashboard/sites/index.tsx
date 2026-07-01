@@ -79,6 +79,7 @@ function SitesPage() {
   const { data, isLoading, error } = useSites(params);
 
   const sites = data?.items ?? [];
+  const total = data?.total ?? 0;
   const totalPages = data?.totalPages ?? 1;
 
   const setSearchParams = useCallback(
@@ -212,9 +213,9 @@ function SitesPage() {
 
       {/* Pagination */}
       {!isLoading && sites.length > 0 && totalPages > 1 && (
-        <div className="flex items-center justify-between border-t pt-4">
-          <p className="text-sm text-muted-foreground">
-            Page {page} of {totalPages} ({data?.total ?? 0} total sites)
+        <div className="flex items-center justify-between border-t border-border pt-4">
+          <p className="font-mono text-xs text-muted-foreground">
+            {page}/{totalPages} · {total} total
           </p>
           <div className="flex gap-2">
             <Button

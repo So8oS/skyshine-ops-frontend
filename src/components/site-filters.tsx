@@ -63,12 +63,12 @@ export function SiteFilters({
           <div className="flex flex-col md:flex-row gap-4 flex-wrap">
             <div className="flex-1 min-w-[200px]">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   placeholder="Search by name or code..."
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  className="pl-10"
+                  className="pl-9 focus-visible:ring-primary/50"
                 />
               </div>
             </div>
