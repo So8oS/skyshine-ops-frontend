@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
 import { z } from "zod";
 import { toast } from "sonner";
+import { getApiErrorMessage, type ApiError } from "../lib/api-error";
 
 /* ---------- Types & Schemas ---------- */
 
@@ -412,9 +413,8 @@ export const useCreateSite = (options?: { onSuccess?: (site: Site) => void }) =>
       toast.success("Site created successfully");
       options?.onSuccess?.(site);
     },
-    onError: (error: Error & { response?: { data?: { error?: string } } }) => {
-      const message = error.response?.data?.error || "Failed to create site";
-      toast.error(message);
+    onError: (error: ApiError) => {
+      toast.error(getApiErrorMessage(error, "Failed to create site"));
     },
   });
 };
@@ -437,9 +437,8 @@ export const useUpdateSite = (options?: { onSuccess?: (site: Site) => void }) =>
       toast.success("Site updated successfully");
       options?.onSuccess?.(site);
     },
-    onError: (error: Error & { response?: { data?: { error?: string } } }) => {
-      const message = error.response?.data?.error || "Failed to update site";
-      toast.error(message);
+    onError: (error: ApiError) => {
+      toast.error(getApiErrorMessage(error, "Failed to update site"));
     },
   });
 };
@@ -462,9 +461,8 @@ export const useDeleteSite = (options?: { onSuccess?: () => void }) => {
       toast.success("Site deleted successfully");
       options?.onSuccess?.();
     },
-    onError: (error: Error & { response?: { data?: { error?: string } } }) => {
-      const message = error.response?.data?.error || "Failed to delete site";
-      toast.error(message);
+    onError: (error: ApiError) => {
+      toast.error(getApiErrorMessage(error, "Failed to delete site"));
     },
   });
 };

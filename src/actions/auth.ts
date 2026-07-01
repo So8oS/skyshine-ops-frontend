@@ -3,6 +3,7 @@ import { api } from "../lib/api";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
+import { getApiErrorMessage, type ApiError } from "../lib/api-error";
 
 /* ---------- Types & Schemas ---------- */
 
@@ -95,9 +96,8 @@ export const useLogin = () => {
       toast.success("Welcome back!");
       navigate({ to: "/dashboard" });
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.error || "Login failed";
-      toast.error(message);
+    onError: (error: ApiError) => {
+      toast.error(getApiErrorMessage(error, "Login failed"));
     },
   });
 };
@@ -114,9 +114,8 @@ export const useRegister = () => {
       toast.success("Account created successfully!");
       navigate({ to: "/dashboard" });
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.error || "Registration failed";
-      toast.error(message);
+    onError: (error: ApiError) => {
+      toast.error(getApiErrorMessage(error, "Registration failed"));
     },
   });
 };

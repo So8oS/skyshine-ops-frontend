@@ -3,6 +3,7 @@ import { api } from "../lib/api";
 import { z } from "zod";
 import { toast } from "sonner";
 import { scheduleKeys } from "./schedules";
+import { getApiErrorMessage } from "../lib/api-error";
 
 /* ---------- Types & Schemas ---------- */
 
@@ -165,19 +166,6 @@ export const useDrone = (id: string | null, options?: { initialData?: Drone }) =
 
 /* ---------- Mutation Hooks ---------- */
 
-function getDroneErrorMessage(
-  error: Error & {
-    response?: { data?: { error?: string; details?: { path: string; message: string }[] } };
-  }
-): string {
-  const data = error.response?.data;
-  if (!data) return "Something went wrong";
-  if (data.details?.length) {
-    return data.details.map((d) => d.message).join(". ");
-  }
-  return data.error ?? "Something went wrong";
-}
-
 export const useCreateDrone = (options?: { onSuccess?: (drone: Drone) => void }) => {
   const queryClient = useQueryClient();
 
@@ -191,7 +179,7 @@ export const useCreateDrone = (options?: { onSuccess?: (drone: Drone) => void })
       options?.onSuccess?.(drone);
     },
     onError: (error) => {
-      toast.error(getDroneErrorMessage(error));
+      toast.error(getApiErrorMessage(error));
     },
   });
 };
@@ -210,7 +198,7 @@ export const useUpdateDrone = (options?: { onSuccess?: (drone: Drone) => void })
       options?.onSuccess?.(drone);
     },
     onError: (error) => {
-      toast.error(getDroneErrorMessage(error));
+      toast.error(getApiErrorMessage(error));
     },
   });
 };
@@ -237,7 +225,7 @@ export const useDeleteDrone = (options?: { onSuccess?: () => void }) => {
         );
         return;
       }
-      toast.error(getDroneErrorMessage(error));
+      toast.error(getApiErrorMessage(error));
     },
   });
 };

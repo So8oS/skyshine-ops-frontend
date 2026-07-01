@@ -3,6 +3,7 @@ import { api } from "../lib/api";
 import { z } from "zod";
 import { toast } from "sonner";
 import { jobKeys } from "./jobs";
+import { getApiErrorMessage } from "../lib/api-error";
 
 /* ---------- Types & Schemas ---------- */
 
@@ -290,15 +291,6 @@ export interface ScheduleApiError extends Error {
   };
 }
 
-export function getScheduleErrorMessage(err: ScheduleApiError): string {
-  const data = err.response?.data;
-  if (!data) return "Something went wrong";
-  if (data.details?.length) {
-    return data.details.map((d) => d.message).join(". ");
-  }
-  return data.error ?? "Something went wrong";
-}
-
 /** Returns conflict from 409 response; use to show blocking schedule (link, time range, etc.) */
 export function getScheduleConflict(err: ScheduleApiError): ScheduleConflict | null {
   return err.response?.status === 409 && err.response?.data?.conflict
@@ -331,7 +323,7 @@ export const useCreateSchedule = (options?: {
         const conflict = getScheduleConflict(error);
         options?.onConflict?.(error, conflict ?? null);
       }
-      toast.error(getScheduleErrorMessage(error));
+      toast.error(getApiErrorMessage(error));
     },
   });
 };
@@ -360,7 +352,7 @@ export const useUpdateSchedule = (options?: {
         const conflict = getScheduleConflict(error);
         options?.onConflict?.(error, conflict ?? null);
       }
-      toast.error(getScheduleErrorMessage(error));
+      toast.error(getApiErrorMessage(error));
     },
   });
 };
@@ -381,7 +373,7 @@ export const useDeleteSchedule = (options?: {
       options?.onSuccess?.(id);
     },
     onError: (error: ScheduleApiError) => {
-      toast.error(getScheduleErrorMessage(error));
+      toast.error(getApiErrorMessage(error));
     },
   });
 };

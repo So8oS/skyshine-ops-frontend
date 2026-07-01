@@ -3,6 +3,7 @@ import { api } from "../lib/api";
 import { z } from "zod";
 import { toast } from "sonner";
 import { siteKeys } from "./sites";
+import { getApiErrorMessage } from "../lib/api-error";
 
 /* ---------- Types & Schemas ---------- */
 
@@ -171,17 +172,6 @@ export const useJob = (id: string | null, options?: { initialData?: Job }) => {
 
 /* ---------- Mutation Hooks ---------- */
 
-function getJobErrorMessage(
-  error: Error & { response?: { data?: { error?: string; details?: { path: string; message: string }[] } } }
-): string {
-  const data = error.response?.data;
-  if (!data) return "Something went wrong";
-  if (data.details?.length) {
-    return data.details.map((d) => d.message).join(". ");
-  }
-  return data.error ?? "Something went wrong";
-}
-
 export const useCreateJob = (options?: { onSuccess?: (job: Job) => void }) => {
   const queryClient = useQueryClient();
 
@@ -195,7 +185,7 @@ export const useCreateJob = (options?: { onSuccess?: (job: Job) => void }) => {
       options?.onSuccess?.(job);
     },
     onError: (error) => {
-      toast.error(getJobErrorMessage(error));
+      toast.error(getApiErrorMessage(error));
     },
   });
 };
@@ -213,7 +203,7 @@ export const useUpdateJob = (options?: { onSuccess?: (job: Job) => void }) => {
       options?.onSuccess?.(job);
     },
     onError: (error) => {
-      toast.error(getJobErrorMessage(error));
+      toast.error(getApiErrorMessage(error));
     },
   });
 };
@@ -240,7 +230,7 @@ export const useDeleteJob = (options?: { onSuccess?: () => void }) => {
         );
         return;
       }
-      toast.error(getJobErrorMessage(error));
+      toast.error(getApiErrorMessage(error));
     },
   });
 };
