@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollText, Search } from "lucide-react";
 import {
@@ -6,6 +6,7 @@ import {
   feedApi,
   feedKeys,
   FEED_KIND_LABELS,
+  type FeedItem,
   type FeedItemKind,
   type FeedListParams,
 } from "@/actions/feed";
@@ -87,6 +88,84 @@ function formatDate(iso: string): string {
   })
     .format(new Date(iso))
     .toUpperCase();
+}
+
+const logRowClassName = cn(
+  "relative flex items-center gap-3 px-4 h-14 border-b border-border last:border-0 transition-colors cursor-pointer",
+  "hover:bg-card/60",
+  "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary before:opacity-0 hover:before:opacity-100 before:transition-opacity"
+);
+
+function LogRowContent({ item }: { item: FeedItem }) {
+  return (
+    <>
+      <div className="flex flex-col items-start justify-center gap-0.5 w-[72px] shrink-0">
+        <span className="font-mono text-[11px] font-semibold text-foreground leading-none tabular-nums">
+          {formatTime(item.at)}
+        </span>
+        <span className="font-mono text-[10px] text-muted-foreground leading-none">
+          {formatDate(item.at)}
+        </span>
+      </div>
+      <div className="w-px self-stretch bg-border/50 shrink-0" />
+      <div className="shrink-0">
+        <FeedKindBadge kind={item.kind} label={FEED_KIND_LABELS[item.kind] ?? item.kind} />
+      </div>
+      <p className="flex-1 min-w-0 truncate text-sm text-foreground">{item.summary}</p>
+      <span className="shrink-0 font-mono text-[12px] text-muted-foreground truncate max-w-[120px]">
+        {item.actor ? item.actor.name.split(" ")[0] : "—"}
+      </span>
+    </>
+  );
+}
+
+function LogRow({ item }: { item: FeedItem }) {
+  switch (item.kind) {
+    case "SCHEDULE_CREATED":
+    case "SCHEDULE_UPDATED":
+      return (
+        <Link
+          to="/dashboard/schedules/$scheduleId"
+          params={{ scheduleId: item.refId }}
+          className={logRowClassName}
+        >
+          <LogRowContent item={item} />
+        </Link>
+      );
+    case "SITE_CREATED":
+      return (
+        <Link
+          to="/dashboard/sites/$siteId/edit"
+          params={{ siteId: item.refId }}
+          className={logRowClassName}
+        >
+          <LogRowContent item={item} />
+        </Link>
+      );
+    case "JOB_CREATED":
+      return (
+        <Link
+          to="/dashboard/jobs/$jobId/edit"
+          params={{ jobId: item.refId }}
+          className={logRowClassName}
+        >
+          <LogRowContent item={item} />
+        </Link>
+      );
+    case "DRONE_CREATED":
+    case "DRONE_STATUS_CHANGED":
+      return (
+        <Link
+          to="/dashboard/drones/$droneId"
+          params={{ droneId: item.refId }}
+          className={logRowClassName}
+        >
+          <LogRowContent item={item} />
+        </Link>
+      );
+    default:
+      return <div className={logRowClassName}><LogRowContent item={item} /></div>;
+  }
 }
 
 function LogsPage() {
@@ -252,36 +331,7 @@ function LogsPage() {
                 />
               ))
             ) : items.length === 0 ? null : (
-              items.map((item) => (
-                <div
-                  key={item.id}
-                  className={cn(
-                    "relative flex items-center gap-3 px-4 h-14 border-b border-border last:border-0 transition-colors cursor-default",
-                    "hover:bg-card/60",
-                    "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary before:opacity-0 hover:before:opacity-100 before:transition-opacity"
-                  )}
-                  // TODO: navigate to refId entity when clicked
-                >
-                  <div className="flex flex-col items-start justify-center gap-0.5 w-[72px] shrink-0">
-                    <span className="font-mono text-[11px] font-semibold text-foreground leading-none tabular-nums">
-                      {formatTime(item.at)}
-                    </span>
-                    <span className="font-mono text-[10px] text-muted-foreground leading-none">
-                      {formatDate(item.at)}
-                    </span>
-                  </div>
-                  <div className="w-px self-stretch bg-border/50 shrink-0" />
-                  <div className="shrink-0">
-                    <FeedKindBadge kind={item.kind} label={FEED_KIND_LABELS[item.kind] ?? item.kind} />
-                  </div>
-                  <p className="flex-1 min-w-0 truncate text-sm text-foreground">
-                    {item.summary}
-                  </p>
-                  <span className="shrink-0 font-mono text-[12px] text-muted-foreground truncate max-w-[120px]">
-                    {item.actor ? item.actor.name.split(" ")[0] : "—"}
-                  </span>
-                </div>
-              ))
+              items.map((item) => <LogRow key={item.id} item={item} />)
             )}
           </div>
 
