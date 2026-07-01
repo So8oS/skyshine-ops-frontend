@@ -41,7 +41,7 @@ const droneStatusClass: Record<string, string> = {
 };
 
 const jobTypeClass: Record<string, string> = {
-  INSPECTION: "bg-[#A78BFA]/10 text-[#A78BFA] border-[#A78BFA]/30",
+  INSPECTION: "bg-chart-3/10 text-chart-3 border-chart-3/30",
   CLEANING:   "bg-teal/10 text-teal border-teal/30",
 };
 

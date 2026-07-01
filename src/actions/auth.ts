@@ -57,9 +57,10 @@ export const authApi = {
     try {
       const response = await api.get<AuthResponse>("/api/auth/me");
       return response.data.data.user;
-    } catch (e: any) {
-      if (e.response?.status === 401) return null;
-      throw e;
+    } catch (e: unknown) {
+      const error = e as ApiError;
+      if (error.response?.status === 401) return null;
+      throw error;
     }
   },
 };
