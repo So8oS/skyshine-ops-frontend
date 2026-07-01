@@ -32,21 +32,12 @@ export interface JobStats {
   byType: Record<JobTypeOverview, number>;
 }
 
-export interface DroneStats {
-  total: number;
-  byStatus: Record<DroneStatusOverview, number>;
-}
-
 export interface StatisticsOverviewResponse {
   data: StatisticsOverview;
 }
 
 export interface JobStatsResponse {
   data: JobStats;
-}
-
-export interface DroneStatsResponse {
-  data: DroneStats;
 }
 
 export interface StatisticsOverviewParams {
@@ -73,11 +64,6 @@ export const statisticsApi = {
     const response = await api.get<JobStatsResponse>("/api/statistics/jobs");
     return response.data.data;
   },
-
-  getDroneStats: async (): Promise<DroneStats> => {
-    const response = await api.get<DroneStatsResponse>("/api/statistics/drones");
-    return response.data.data;
-  },
 };
 
 /* ---------- Query Keys ---------- */
@@ -87,7 +73,6 @@ export const statisticsKeys = {
   overview: (params?: StatisticsOverviewParams) =>
     [...statisticsKeys.all, "overview", params ?? {}] as const,
   jobStats: () => [...statisticsKeys.all, "jobs"] as const,
-  droneStats: () => [...statisticsKeys.all, "drones"] as const,
 };
 
 /* ---------- Hooks ---------- */
@@ -108,14 +93,6 @@ export const useJobStats = () => {
   return useQuery({
     queryKey: statisticsKeys.jobStats(),
     queryFn: () => statisticsApi.getJobStats(),
-    staleTime: 1000 * 60 * 2,
-  });
-};
-
-export const useDroneStats = () => {
-  return useQuery({
-    queryKey: statisticsKeys.droneStats(),
-    queryFn: () => statisticsApi.getDroneStats(),
     staleTime: 1000 * 60 * 2,
   });
 };

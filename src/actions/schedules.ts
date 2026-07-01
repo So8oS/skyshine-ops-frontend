@@ -77,12 +77,6 @@ export interface ScheduleResponse {
   };
 }
 
-export interface SchedulesByJobResponse {
-  data: {
-    items: Schedule[];
-  };
-}
-
 export interface AvailabilityResponse {
   data: {
     startAt: string;
@@ -176,13 +170,6 @@ export const schedulesApi = {
     return response.data.data.schedule;
   },
 
-  getByJobId: async (jobId: string): Promise<Schedule[]> => {
-    const response = await api.get<SchedulesByJobResponse>(
-      `/api/job/${jobId}/schedule`
-    );
-    return response.data.data.items;
-  },
-
   getAvailability: async (
     startAt: string,
     endAt: string
@@ -224,7 +211,6 @@ export const scheduleKeys = {
     [...scheduleKeys.lists(), params] as const,
   details: () => [...scheduleKeys.all, "detail"] as const,
   detail: (id: string) => [...scheduleKeys.details(), id] as const,
-  byJob: (jobId: string) => [...scheduleKeys.all, "byJob", jobId] as const,
   availability: (startAt: string, endAt: string) =>
     [...scheduleKeys.all, "availability", startAt, endAt] as const,
 };
@@ -253,15 +239,6 @@ export const useSchedule = (
     queryFn: () => schedulesApi.getById(id!),
     enabled: !!id,
     initialData: options?.initialData,
-  });
-};
-
-export const useSchedulesByJob = (jobId: string | null) => {
-  return useQuery({
-    queryKey: scheduleKeys.byJob(jobId ?? ""),
-    queryFn: () => schedulesApi.getByJobId(jobId!),
-    enabled: !!jobId,
-    staleTime: 1000 * 60 * 2,
   });
 };
 
@@ -311,9 +288,6 @@ export const useCreateSchedule = (options?: {
     onSuccess: (schedule) => {
       queryClient.setQueryData(scheduleKeys.detail(schedule.id), schedule);
       queryClient.invalidateQueries({ queryKey: scheduleKeys.lists() });
-      queryClient.invalidateQueries({
-        queryKey: scheduleKeys.byJob(schedule.jobId),
-      });
       queryClient.invalidateQueries({ queryKey: jobKeys.detail(schedule.jobId) });
       toast.success("Schedule created");
       options?.onSuccess?.(schedule);
@@ -340,9 +314,6 @@ export const useUpdateSchedule = (options?: {
     onSuccess: (schedule) => {
       queryClient.setQueryData(scheduleKeys.detail(schedule.id), schedule);
       queryClient.invalidateQueries({ queryKey: scheduleKeys.lists() });
-      queryClient.invalidateQueries({
-        queryKey: scheduleKeys.byJob(schedule.jobId),
-      });
       queryClient.invalidateQueries({ queryKey: jobKeys.detail(schedule.jobId) });
       toast.success("Schedule updated");
       options?.onSuccess?.(schedule);

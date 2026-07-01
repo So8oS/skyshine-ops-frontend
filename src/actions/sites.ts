@@ -142,13 +142,6 @@ export interface SiteResponse {
   };
 }
 
-export interface SiteCountResponse {
-  data: {
-    items: Site[];
-    total: number;
-  };
-}
-
 // Optional number (form may send "" for empty)
 const optionalNumber = z
   .union([z.number(), z.string()])
@@ -260,19 +253,6 @@ export const sitesApi = {
     return response.data.data;
   },
 
-  getLatest: async (limit = 5): Promise<Site[]> => {
-    const response = await api.get<SitesResponse>(
-      `/api/site?page=1&pageSize=${limit}`
-    );
-    return response.data.data.items;
-  },
-
-  getCount: async (): Promise<{ siteCount: number }> => {
-    // Use minimal pageSize since we only need total count
-    const response = await api.get<SitesResponse>("/api/site?page=1&pageSize=1");
-    return { siteCount: response.data.data.total };
-  },
-
   getById: async (id: string): Promise<Site> => {
     const response = await api.get<SiteResponse>(`/api/site/${id}`);
     return response.data.data.site;
@@ -316,8 +296,6 @@ export const siteKeys = {
   fullDetails: () => [...siteKeys.all, "fullDetail"] as const,
   fullDetail: (id: string) => [...siteKeys.fullDetails(), id] as const,
   jobsCount: (id: string) => [...siteKeys.all, "jobsCount", id] as const,
-  count: () => [...siteKeys.all, "count"] as const,
-  latest: (limit?: number) => [...siteKeys.all, "latest", limit ?? 5] as const,
 };
 
 /* ---------- Query Hooks ---------- */
@@ -330,31 +308,6 @@ export const useSites = (
   return useQuery({
     queryKey: siteKeys.list(params),
     queryFn: () => sitesApi.getAll(params),
-    initialData: options?.initialData,
-    staleTime: 1000 * 60 * 10, // 10 minutes
-  });
-};
-
-// Get latest sites (for dashboard widgets, etc.)
-export const useLatestSites = (
-  limit = 5,
-  options?: { initialData?: Site[] }
-) => {
-  return useQuery({
-    queryKey: siteKeys.latest(limit),
-    queryFn: () => sitesApi.getLatest(limit),
-    initialData: options?.initialData,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-};
-
-// Get site count
-export const useSiteCount = (options?: {
-  initialData?: { siteCount: number };
-}) => {
-  return useQuery({
-    queryKey: siteKeys.count(),
-    queryFn: sitesApi.getCount,
     initialData: options?.initialData,
     staleTime: 1000 * 60 * 10, // 10 minutes
   });
@@ -407,8 +360,6 @@ export const useCreateSite = (options?: { onSuccess?: (site: Site) => void }) =>
 
       // Invalidate list-related queries (can't safely prepend without knowing current params)
       queryClient.invalidateQueries({ queryKey: siteKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: siteKeys.latest() });
-      queryClient.invalidateQueries({ queryKey: siteKeys.count() });
 
       toast.success("Site created successfully");
       options?.onSuccess?.(site);
@@ -432,7 +383,6 @@ export const useUpdateSite = (options?: { onSuccess?: (site: Site) => void }) =>
 
       // Invalidate lists (name/other fields may affect sorting/filtering)
       queryClient.invalidateQueries({ queryKey: siteKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: siteKeys.latest() });
 
       toast.success("Site updated successfully");
       options?.onSuccess?.(site);
@@ -453,10 +403,8 @@ export const useDeleteSite = (options?: { onSuccess?: () => void }) => {
       // Remove the detail cache for deleted site
       queryClient.removeQueries({ queryKey: siteKeys.detail(id) });
 
-      // Invalidate lists and count
+      // Invalidate lists
       queryClient.invalidateQueries({ queryKey: siteKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: siteKeys.latest() });
-      queryClient.invalidateQueries({ queryKey: siteKeys.count() });
 
       toast.success("Site deleted successfully");
       options?.onSuccess?.();
