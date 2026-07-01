@@ -96,7 +96,7 @@ function TodayTimeline() {
 
   const { data, isLoading } = useSchedules(
     { from: range.from, to: range.to, pageSize: 100 },
-    { refetchInterval: 60_000 } as Parameters<typeof useSchedules>[1]
+    { refetchInterval: 60_000 }
   );
 
   const schedules = data?.items ?? [];

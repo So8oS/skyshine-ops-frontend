@@ -232,13 +232,14 @@ export const scheduleKeys = {
 
 export const useSchedules = (
   params: ScheduleListParams = {},
-  options?: { initialData?: SchedulesResponse["data"] }
+  options?: { initialData?: SchedulesResponse["data"]; refetchInterval?: number }
 ) => {
   return useQuery({
     queryKey: scheduleKeys.list(params),
     queryFn: () => schedulesApi.getAll(params),
     initialData: options?.initialData,
     staleTime: 1000 * 60 * 2, // 2 minutes
+    refetchInterval: options?.refetchInterval,
   });
 };
 
