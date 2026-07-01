@@ -20,8 +20,6 @@ import {
 import { Skeleton } from "./ui/skeleton";
 import { DataRow } from "./data-row";
 
-// TODO: backend addition needed — latitude, longitude
-
 interface SiteDetailsDialogProps {
   site: Site | null;
   open: boolean;
@@ -53,6 +51,10 @@ export function SiteDetailsDialog({
     : null;
   const constraints = site.accessConstraints ?? [];
   const locationLine = [site.emirate, site.city].filter(Boolean).join(" · ") || null;
+  const coordsLine =
+    site.latitude != null && site.longitude != null
+      ? `${Math.abs(site.latitude).toFixed(4)}° ${site.latitude >= 0 ? "N" : "S"} · ${Math.abs(site.longitude).toFixed(4)}° ${site.longitude >= 0 ? "E" : "W"}`
+      : null;
   const createdLabel = site.createdAt
     ? new Date(site.createdAt).toLocaleDateString("en-GB", {
         day: "2-digit",
@@ -81,6 +83,11 @@ export function SiteDetailsDialog({
             <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5">
               <MapPin className="h-3 w-3 shrink-0" />
               {locationLine}
+            </p>
+          )}
+          {coordsLine && (
+            <p className="font-mono text-[11px] text-muted-foreground/70 mt-1">
+              {coordsLine}
             </p>
           )}
         </div>

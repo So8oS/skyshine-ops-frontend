@@ -76,6 +76,8 @@ export interface Site {
   code?: string;
   emirate?: string;
   city?: string;
+  latitude?: number;
+  longitude?: number;
   // Asset profile
   assetType?: AssetType;
   glassSurfaceType?: GlassSurfaceType;
@@ -187,6 +189,8 @@ export const CreateSiteInput = z.object({
   code: z.string().optional(),
   emirate: z.string().optional(),
   city: z.string().optional(),
+  latitude: optionalNumber,
+  longitude: optionalNumber,
   assetType: assetTypeEnum.optional(),
   glassSurfaceType: glassSurfaceTypeEnum.optional(),
   maxApprovedPressure: optionalNumber,
@@ -208,6 +212,8 @@ export const UpdateSiteInput = z.object({
   code: z.string().optional(),
   emirate: z.string().optional(),
   city: z.string().optional(),
+  latitude: optionalNumber,
+  longitude: optionalNumber,
   assetType: assetTypeEnum.optional(),
   glassSurfaceType: glassSurfaceTypeEnum.optional(),
   maxApprovedPressure: optionalNumber,

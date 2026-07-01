@@ -166,32 +166,50 @@ function DronesPage() {
             <div key={i} className="h-16 animate-pulse bg-muted border-b border-border last:border-0" />
           ))
         ) : drones.length === 0 ? null : (
-          drones.map((d) => (
-            <Link
-              key={d.id}
-              to="/dashboard/drones/$droneId"
-              params={{ droneId: d.id }}
-              className={cn(
-                "relative flex items-center gap-4 px-4 h-16 group transition-colors",
-                "border-b border-border last:border-0",
-                "hover:bg-card/60",
-                "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary before:opacity-0 hover:before:opacity-100 before:transition-opacity"
-              )}
-            >
-              <StatusDot variant={statusVariant[d.status as DroneStatus] ?? "idle"} />
-              <span className="font-mono text-[11px] text-muted-foreground tracking-wide w-24 shrink-0 truncate">
-                {d.serialNumber}
-              </span>
-              <span className="flex-1 font-display font-semibold text-sm truncate">
-                {d.name}
-              </span>
-              {/* TODO: backend addition needed — lastServiceAt, batteryCycles */}
-              <DroneStatusBadge
-                status={d.status}
-                label={DRONE_STATUS_LABELS[d.status as DroneStatus] ?? d.status}
-              />
-            </Link>
-          ))
+          drones.map((d) => {
+            const serviceParts = [
+              d.lastServiceAt
+                ? `Last svc ${new Date(d.lastServiceAt).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                  }).toUpperCase()}`
+                : null,
+              d.batteryCycles != null ? `${d.batteryCycles} cycles` : null,
+            ].filter(Boolean);
+
+            return (
+              <Link
+                key={d.id}
+                to="/dashboard/drones/$droneId"
+                params={{ droneId: d.id }}
+                className={cn(
+                  "relative flex items-center gap-4 px-4 h-16 group transition-colors",
+                  "border-b border-border last:border-0",
+                  "hover:bg-card/60",
+                  "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-primary before:opacity-0 hover:before:opacity-100 before:transition-opacity"
+                )}
+              >
+                <StatusDot variant={statusVariant[d.status as DroneStatus] ?? "idle"} />
+                <span className="font-mono text-[11px] text-muted-foreground tracking-wide w-24 shrink-0 truncate">
+                  {d.serialNumber}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-display font-semibold text-sm truncate">
+                    {d.name}
+                  </p>
+                  {serviceParts.length > 0 && (
+                    <p className="font-mono text-[10px] text-muted-foreground truncate mt-0.5">
+                      {serviceParts.join(" · ")}
+                    </p>
+                  )}
+                </div>
+                <DroneStatusBadge
+                  status={d.status}
+                  label={DRONE_STATUS_LABELS[d.status as DroneStatus] ?? d.status}
+                />
+              </Link>
+            );
+          })
         )}
       </div>
 

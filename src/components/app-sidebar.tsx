@@ -220,7 +220,11 @@ export function AppSidebar() {
             <p className="truncate text-sm font-medium text-foreground">
               {user?.name ?? "—"}
             </p>
-            {/* TODO: backend addition needed — User.role */}
+            {user?.role && (
+              <p className="truncate font-mono text-[10px] uppercase tracking-widest text-muted-foreground/60">
+                {user.role}
+              </p>
+            )}
             <p className="truncate font-mono text-[10px] text-muted-foreground/60">
               {user?.email ?? ""}
             </p>

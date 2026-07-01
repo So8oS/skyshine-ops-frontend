@@ -39,6 +39,8 @@ export interface Drone {
   status: DroneStatus;
   createdAt: string;
   updatedAt: string;
+  lastServiceAt?: string;
+  batteryCycles?: number;
   schedules?: DroneSchedule[];
 }
 

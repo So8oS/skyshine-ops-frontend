@@ -130,7 +130,20 @@ function DroneDetailsPage() {
                   />
                 }
               />
-              {/* TODO: backend addition needed — lastServiceAt, batteryCycles */}
+              <DataRow
+                label="Last Service"
+                value={
+                  drone.lastServiceAt
+                    ? new Date(drone.lastServiceAt).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      }).toUpperCase()
+                    : undefined
+                }
+                mono
+              />
+              <DataRow label="Battery Cycles" value={drone.batteryCycles} mono />
             </div>
           </div>
 
