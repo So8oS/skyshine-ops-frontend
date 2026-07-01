@@ -15,7 +15,7 @@ export const DRONE_STATUS_LABELS: Record<DroneStatus, string> = {
   OUT_OF_SERVICE: "Out of service",
 };
 
-/** Schedule snippet when drone is loaded with getById (includes schduals) */
+/** Schedule snippet when drone is loaded with getById (includes schedules) */
 export interface DroneSchedule {
   id: string;
   startAt: string;
@@ -39,7 +39,7 @@ export interface Drone {
   status: DroneStatus;
   createdAt: string;
   updatedAt: string;
-  schduals?: DroneSchedule[];
+  schedules?: DroneSchedule[];
 }
 
 // API Response types

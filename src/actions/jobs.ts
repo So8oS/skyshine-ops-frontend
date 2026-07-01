@@ -14,7 +14,7 @@ export const JOB_TYPE_LABELS: Record<JobType, string> = {
   CLEANING: "Cleaning",
 };
 
-/** Schedule (schduales) as returned by GET /api/job/:id or list with includeSchedules */
+/** Schedule (schedules) as returned by GET /api/job/:id or list with includeSchedules */
 export interface JobSchedule {
   id: string;
   startAt: string;
@@ -45,7 +45,7 @@ export interface Job {
     id: string;
     name: string;
   };
-  schduales?: JobSchedule[];
+  schedules?: JobSchedule[];
 }
 
 // API Response types

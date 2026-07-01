@@ -65,7 +65,7 @@ function DroneDetailsPage() {
 
   if (error) return <SiteErrorFallback error={error} title="Failed to load drone" />;
 
-  const schedules = drone?.schduals ?? [];
+  const schedules = drone?.schedules ?? [];
 
   return (
     <div className="max-w-2xl space-y-6">

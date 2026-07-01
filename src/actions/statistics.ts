@@ -3,7 +3,7 @@ import { api } from "../lib/api";
 
 /* ---------- Types ---------- */
 
-export type SchdualeStatus =
+export type ScheduleStatus =
   | "ASSIGNED"
   | "IN_PROGRESS"
   | "COMPLETED"
@@ -20,7 +20,7 @@ export interface StatisticsOverview {
   totalUsers: number;
   totalSites: number;
   totalJobs: number;
-  schedulesByStatus: Record<SchdualeStatus, number>;
+  schedulesByStatus: Record<ScheduleStatus, number>;
   totalSchedules: number;
   dronesByStatus: Record<DroneStatusOverview, number>;
   totalDrones: number;

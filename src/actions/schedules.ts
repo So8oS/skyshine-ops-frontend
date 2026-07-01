@@ -6,7 +6,6 @@ import { jobKeys } from "./jobs";
 
 /* ---------- Types & Schemas ---------- */
 
-/** Backend uses "schduale" in URLs and response keys. */
 export type ScheduleStatus =
   | "ASSIGNED"
   | "IN_PROGRESS"
@@ -28,7 +27,7 @@ export interface ScheduleConflict {
   jobId: string;
 }
 
-/** Schedule (schduale) as returned by API */
+/** Schedule as returned by API */
 export interface Schedule {
   id: string;
   jobId: string;
@@ -73,7 +72,7 @@ export interface SchedulesResponse {
 
 export interface ScheduleResponse {
   data: {
-    schduale: Schedule;
+    schedule: Schedule;
   };
 }
 
@@ -166,19 +165,19 @@ export const schedulesApi = {
     if (to) searchParams.set("to", to);
 
     const response = await api.get<SchedulesResponse>(
-      `/api/schduale?${searchParams}`
+      `/api/schedule?${searchParams}`
     );
     return response.data.data;
   },
 
   getById: async (id: string): Promise<Schedule> => {
-    const response = await api.get<ScheduleResponse>(`/api/schduale/${id}`);
-    return response.data.data.schduale;
+    const response = await api.get<ScheduleResponse>(`/api/schedule/${id}`);
+    return response.data.data.schedule;
   },
 
   getByJobId: async (jobId: string): Promise<Schedule[]> => {
     const response = await api.get<SchedulesByJobResponse>(
-      `/api/job/${jobId}/schduale`
+      `/api/job/${jobId}/schedule`
     );
     return response.data.data.items;
   },
@@ -195,8 +194,8 @@ export const schedulesApi = {
   },
 
   create: async (data: CreateScheduleRequest): Promise<Schedule> => {
-    const response = await api.post<ScheduleResponse>("/api/schduale", data);
-    return response.data.data.schduale;
+    const response = await api.post<ScheduleResponse>("/api/schedule", data);
+    return response.data.data.schedule;
   },
 
   update: async (
@@ -204,14 +203,14 @@ export const schedulesApi = {
     data: UpdateScheduleRequest
   ): Promise<Schedule> => {
     const response = await api.patch<ScheduleResponse>(
-      `/api/schduale/${id}`,
+      `/api/schedule/${id}`,
       data
     );
-    return response.data.data.schduale;
+    return response.data.data.schedule;
   },
 
   delete: async (id: string): Promise<void> => {
-    await api.delete(`/api/schduale/${id}`);
+    await api.delete(`/api/schedule/${id}`);
   },
 };
 

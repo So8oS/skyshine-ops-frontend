@@ -51,7 +51,7 @@ function EditJobPage() {
     updateJob.mutate({ id: jobId, data: updateData });
   };
 
-  const hasSchedules = (job?.schduales?.length ?? 0) > 0;
+  const hasSchedules = (job?.schedules?.length ?? 0) > 0;
 
   if (error) return <SiteErrorFallback error={error} title="Failed to load job" />;
 

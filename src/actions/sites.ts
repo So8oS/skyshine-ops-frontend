@@ -109,7 +109,7 @@ export interface Schedule {
 export interface Job {
   id: string;
   createdAt: string;
-  schduales?: Schedule[];
+  schedules?: Schedule[];
 }
 
 export interface SiteWithDetails extends Site {
