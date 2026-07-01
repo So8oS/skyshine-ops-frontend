@@ -20,7 +20,7 @@ function formatTime(iso: string): string {
 }
 
 export function LiveOpsFeed() {
-  const { data, isLoading } = useFeed({ pageSize: 20 });
+  const { data, isLoading } = useFeed({ pageSize: 20 }, 30_000);
   const items = data?.items ?? [];
 
   if (isLoading) {

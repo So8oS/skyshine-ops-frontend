@@ -78,10 +78,10 @@ export const feedKeys = {
 
 /* ---------- Query Hooks ---------- */
 
-export const useFeed = (params: FeedListParams = {}) => {
+export const useFeed = (params: FeedListParams = {}, refetchInterval = 60_000) => {
   return useQuery({
     queryKey: feedKeys.list(params),
     queryFn: () => feedApi.getAll(params),
-    refetchInterval: 60_000,
+    refetchInterval,
   });
 };
